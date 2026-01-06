@@ -1,40 +1,40 @@
-import nodemailer from "nodemailer";
+import { Resend } from 'resend';
 
 const sendEmail = async (options) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        },
-        tls: {
-            rejectUnauthorized: false
-        },
-        // Debug & Timeout settings
-        logger: true,
-        debug: true,
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
-    });
+    if (!process.env.RESEND_API_KEY) {
+        console.error("RESEND_API_KEY is missing in environment variables.");
+        throw new Error("Email configuration missing (RESEND_API_KEY)");
+    }
 
-    console.log("Create Transport Config:", {
-        service: 'gmail',
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS ? "****" : "MISSING"
-    });
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const message = {
-        from: `${process.env.FROM_NAME || 'Task Manager'} <${process.env.FROM_EMAIL || process.env.EMAIL_USER}>`,
-        to: options.email,
-        subject: options.subject,
-        text: options.message,
-        html: options.html,
-    };
+    // Use 'onboarding@resend.dev' if you don't have a custom domain verified in Resend yet.
+    // If you verified a domain (e.g., 'updates@myapp.com'), update FROM_EMAIL in your .env
+    const fromAddress = process.env.FROM_EMAIL && process.env.FROM_EMAIL.includes('@resend.dev')
+        ? process.env.FROM_EMAIL
+        : 'onboarding@resend.dev';
 
-    console.log("Attempting to send email via Nodemailer...");
-    const info = await transporter.sendMail(message);
-    console.log("Message sent successfully: %s", info.messageId);
+    console.log(`Attempting to send email via Resend to ${options.email}...`);
+
+    try {
+        const { data, error } = await resend.emails.send({
+            from: `Task Manager <${fromAddress}>`,
+            to: options.email,
+            subject: options.subject,
+            html: options.html,
+            text: options.message // Fallback plain text
+        });
+
+        if (error) {
+            console.error("Resend API Error:", error);
+            throw new Error(error.message);
+        }
+
+        console.log("Message sent successfully:", data);
+    } catch (err) {
+        console.error("Resend Send Failed:", err);
+        throw err;
+    }
 };
 
 export default sendEmail;
