@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 
 const sendEmail = async (options) => {
     const transporter = nodemailer.createTransport({
-        service: 'gmail', // Use 'gmail' service which handles host/port automatically, or specify explicitly
+        // Removed 'service' to force using the explicit host/port config below
         host: "smtp.gmail.com",
         port: 587,
         secure: false, // true for 465, false for other ports
@@ -19,13 +19,14 @@ const sendEmail = async (options) => {
     });
 
     console.log("Create Transport Config:", {
-        service: process.env.EMAIL_SERVICE,
+        host: "smtp.gmail.com",
+        port: 587,
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS ? "****" : "MISSING"
     });
 
     const message = {
-        from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+        from: `${process.env.FROM_NAME || 'Task Manager'} <${process.env.FROM_EMAIL || process.env.EMAIL_USER}>`,
         to: options.email,
         subject: options.subject,
         text: options.message,
