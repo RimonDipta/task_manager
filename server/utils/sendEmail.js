@@ -2,17 +2,20 @@ import nodemailer from "nodemailer";
 
 const sendEmail = async (options) => {
     const transporter = nodemailer.createTransport({
-        // Generic SMTP configuration - replace with provider env vars
-        // For Gmail: service: 'gmail', auth: { user, pass }
-        // For others: host, port, secure, auth
-        service: process.env.EMAIL_SERVICE, // e.g., 'gmail'
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
-        secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+        service: 'gmail', // Use 'gmail' service which handles host/port automatically, or specify explicitly
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS,
         },
+        // Debug & Timeout settings
+        logger: true,
+        debug: true,
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
     });
 
     console.log("Create Transport Config:", {
@@ -26,12 +29,12 @@ const sendEmail = async (options) => {
         to: options.email,
         subject: options.subject,
         text: options.message,
-        html: options.html, // Optional HTML body
+        html: options.html,
     };
 
+    console.log("Attempting to send email via Nodemailer...");
     const info = await transporter.sendMail(message);
-
-    console.log("Message sent: %s", info.messageId);
+    console.log("Message sent successfully: %s", info.messageId);
 };
 
 export default sendEmail;
