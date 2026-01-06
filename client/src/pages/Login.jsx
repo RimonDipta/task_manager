@@ -46,7 +46,10 @@ const Login = () => {
         navigate("/dashboard");
       }
     } catch (err) {
-      if (err.response?.status === 401 && err.response?.data?.message === "Please verify your email") {
+      if (
+        err.response?.status === 401 &&
+        (err.response?.data?.errorCode === "EMAIL_NOT_VERIFIED" || err.response?.data?.message === "Please verify your email")
+      ) {
         navigate("/verify-otp", { state: { email: err.response.data.email || email } });
         return;
       }
