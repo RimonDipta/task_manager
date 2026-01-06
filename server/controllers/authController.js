@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import speakeasy from "speakeasy";
 import sendEmail from "../utils/sendEmail.js";
+import { generateEmailTemplate } from "../utils/emailTemplates.js";
 
 // Generate JWT
 const generateToken = (id) => {
@@ -49,7 +50,7 @@ export const registerUser = async (req, res) => {
       email: user.email,
       subject: "Task Manager - Email Verification",
       message: `Your verification code is: ${otp}. It expires in 10 minutes.`,
-      html: `<h3>Task Manager Verification</h3><p>Your verification code is: <b>${otp}</b></p><p>It expires in 10 minutes.</p>`
+      html: generateEmailTemplate(otp, "verification")
     });
 
     res.status(201).json({
@@ -99,7 +100,7 @@ export const loginUser = async (req, res) => {
           email: user.email,
           subject: "Task Manager - 2FA Code",
           message: `Your 2FA login code is: ${otp}`,
-          html: `<h3>Task Manager 2FA</h3><p>Your login code is: <b>${otp}</b></p>`
+          html: generateEmailTemplate(otp, "2fa")
         });
 
         return res.json({
@@ -231,7 +232,7 @@ export const resendOtp = async (req, res) => {
       email: user.email,
       subject: "Task Manager - New OTP",
       message: `Your new verification code is: ${otp}`,
-      html: `<h3>Task Manager</h3><p>Your new verification code is: <b>${otp}</b></p>`
+      html: generateEmailTemplate(otp, "verification")
     });
 
     res.json({ message: "OTP resent successfully" });

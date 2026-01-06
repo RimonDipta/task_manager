@@ -28,13 +28,13 @@ const Register = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const submitHandler = async (e) => {
+    e.preventDefault();
+
     const strength = getPasswordStrength(password);
 
     if (strength.score < 3) {
       return showToast("Password is too weak");
     }
-
-    e.preventDefault();
 
     if (!name || !email || !password) {
       return showToast("All fields are required");

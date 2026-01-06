@@ -1,5 +1,17 @@
 import dotenv from "dotenv";
 dotenv.config();
+
+// Set environment variables based on mode
+if (process.env.NODE_ENV === "production") {
+  process.env.CLIENT_URL = process.env.CLIENT_URL_PROD;
+  process.env.API_URL = process.env.API_URL_PROD;
+} else {
+  process.env.CLIENT_URL = process.env.CLIENT_URL_DEV;
+  process.env.API_URL = process.env.API_URL_DEV;
+}
+
+console.log(`Environment: ${process.env.NODE_ENV}`);
+console.log(`Client URL: ${process.env.CLIENT_URL}`);
 import express from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
