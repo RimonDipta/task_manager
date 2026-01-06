@@ -13,11 +13,28 @@ startScheduler();
 
 const app = express();
 
+const allowedOrigins = [process.env.CLIENT_URL];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: function (origin, callback) {
+      // allow REST tools like Postman
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
+
+// handle preflight
+app.options("*", cors());
+
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
