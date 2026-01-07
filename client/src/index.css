@@ -19,6 +19,8 @@
     /* slate-900 */
     --text-secondary: #64748b;
     /* slate-500 */
+    --text-tertiary: #94a3b8;
+    /* slate-400 */
     --border-color: #e2e8f0;
     /* slate-200 */
     --primary-color: #4f46e5;
@@ -40,6 +42,8 @@
     /* slate-50 */
     --text-secondary: #94a3b8;
     /* slate-400 */
+    --text-tertiary: #64748b;
+    /* slate-500 */
     --border-color: #334155;
     /* slate-700 */
     --primary-color: #818cf8;
@@ -61,6 +65,8 @@
     /* indigo-50 */
     --text-secondary: #a5b4fc;
     /* indigo-300 */
+    --text-tertiary: #818cf8;
+    /* indigo-400 */
     --border-color: #4338ca;
     /* indigo-700 */
     --primary-color: #c084fc;
@@ -79,6 +85,8 @@
     /* rose-900 */
     --text-secondary: #be123c;
     /* rose-700 */
+    --text-tertiary: #fb7185;
+    /* rose-400 */
     --border-color: #fda4af;
     /* rose-300 */
     --primary-color: #e11d48;
@@ -98,6 +106,8 @@
     /* sky-900 */
     --text-secondary: #0284c7;
     /* sky-600 */
+    --text-tertiary: #38bdf8;
+    /* sky-400 */
     --border-color: #7dd3fc;
     /* sky-300 */
     --primary-color: #0284c7;
