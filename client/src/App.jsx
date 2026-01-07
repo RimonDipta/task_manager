@@ -12,6 +12,7 @@ import Tasks from "./pages/Tasks";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./components/Layout";
+import ToastContainer from "./components/ToastContainer";
 import { useEffect } from "react";
 
 import LandingPage from "./pages/LandingPage";
@@ -29,6 +30,7 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <ToastProvider>
+            <ToastContainer />
             <TaskProvider>
               <Routes>
                 <Route path="/" element={<LandingPage />} />

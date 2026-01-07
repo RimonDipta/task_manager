@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 
-const TimePopover = ({ selectedTime, onSelect, onClose }) => {
+const TimePopover = ({ selectedTime, onSelect, onClose, onClear }) => {
     // Parse initial time or default to current rounded time
     const [hour, setHour] = useState(12);
     const [minute, setMinute] = useState(0);
@@ -22,7 +22,7 @@ const TimePopover = ({ selectedTime, onSelect, onClose }) => {
             let m = now.getMinutes();
             // Round to nearest 5
             m = Math.round(m / 5) * 5;
-            if (m === 60) { m = 0; h += 1; }
+            if (m >= 60) { m = 0; h += 1; }
 
             let parsedHour = h > 12 ? h - 12 : h === 0 ? 12 : h;
             let parsedPeriod = h >= 12 ? "PM" : "AM";
@@ -50,13 +50,26 @@ const TimePopover = ({ selectedTime, onSelect, onClose }) => {
 
     const adjustMinute = (delta) => {
         let newM = minute + delta;
-        if (newM > 55) newM = 0;
-        if (newM < 0) newM = 55;
+        if (newM > 59) newM = 0;
+        if (newM < 0) newM = 55; // 5 minute steps
         setMinute(newM);
     };
 
+    // Custom adjust for minute to simple +/- 1 or 5?
+    // Let's stick to 5 for stepper per design commonality or 1?
+    // Previous code used 5. Let's make it 5.
+
     return (
         <div className="absolute top-10 left-0 z-50 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-xl p-4 animate-in fade-in zoom-in-95 duration-200 flex flex-col gap-4 items-center min-w-[200px]">
+
+            {/* No Time Button */}
+            <button
+                type="button"
+                onClick={() => { if (onClear) onClear(); }}
+                className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:underline self-end mb-1"
+            >
+                No Time
+            </button>
 
             {/* Stepper Controls */}
             <div className="flex items-center gap-4">

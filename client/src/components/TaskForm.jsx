@@ -209,8 +209,8 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
               )}
             </div>
             {activePopover === "date" && (
-              <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setActivePopover(null)}>
-                <div onClick={(e) => e.stopPropagation()}>
+              <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setActivePopover(null)}>
+                <div className="relative shadow-2xl rounded-xl" onClick={(e) => e.stopPropagation()}>
                   <DatePopover
                     selectedDate={date}
                     onSelect={(d) => { setDate(d); setActivePopover(null); }}
@@ -382,22 +382,15 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
                   </div>
 
                   {activePopover === 'time' && (
-                    <div className="absolute top-full mt-2 left-0 z-50">
+                    <div className="absolute top-full mt-2 left-0 z-[70]">
                       <TimePopover
                         selectedTime={time}
                         onSelect={(t) => { setTime(t); setActivePopover(null); }}
                         onClose={() => setActivePopover(null)}
+                        onClear={() => { setTime(""); setActivePopover(null); }}
                       />
                     </div>
                   )}
-
-                  <button
-                    type="button"
-                    onClick={() => setTime("")}
-                    className={`text-xs px-2 py-1 rounded border transition-colors ${!time ? "bg-indigo-50 border-indigo-200 text-indigo-700" : "bg-[var(--bg-surface)] border-[var(--border-color)] text-[var(--text-secondary)]"}`}
-                  >
-                    No Time
-                  </button>
                 </div>
               </div>
 
