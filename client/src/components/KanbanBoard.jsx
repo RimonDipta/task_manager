@@ -159,7 +159,7 @@ const KanbanBoard = ({ filterType = "all", filters }) => {
                                                             {!item.completed && (
                                                                 <>
                                                                     {/* Timer */}
-                                                                    {item.duration > 0 && item.startTime && (
+                                                                    {item.duration > 0 && (
                                                                         <TimeTracker task={item} />
                                                                     )}
                                                                     {/* Overdue */}

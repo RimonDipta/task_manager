@@ -137,6 +137,8 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
       status: taskStatus
     };
 
+    console.log("Submitting Task Data:", taskData);
+
     if (task) {
       // Update
       await updateTask(task._id, taskData);

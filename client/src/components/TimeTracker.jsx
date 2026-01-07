@@ -38,10 +38,28 @@ const TimeTracker = ({ task }) => {
         return () => clearInterval(timer);
     }, [task]);
 
+    // Helper to format minutes to "1h 30m"
+    const formatDuration = (mins) => {
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        if (h > 0) return `${h}h ${m}m`;
+        return `${m}m`;
+    };
+
+    if (!task.startTime) {
+        // Not started yet, show static duration
+        return (
+            <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium border bg-slate-50 text-slate-500 border-slate-200`}>
+                <Timer size={12} />
+                <span>{formatDuration(task.duration)}</span>
+            </div>
+        );
+    }
+
     if (!timeLeft) return null;
 
     return (
-        <div className={`mt-2 inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium border ${isOver ? "bg-red-50 text-red-600 border-red-100" : "bg-indigo-50 text-indigo-600 border-indigo-100"
+        <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium border ${isOver ? "bg-red-50 text-red-600 border-red-100" : "bg-indigo-50 text-indigo-600 border-indigo-100"
             }`}>
             {isOver ? <Hourglass size={12} /> : <Timer size={12} />}
             <span>{isOver ? "Time's up" : `${timeLeft} left`}</span>

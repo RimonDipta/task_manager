@@ -90,8 +90,8 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
           {/* Timer / Overdue (Right of Title) */}
           {!task.completed && (
             <>
-              {/* Timer if running */}
-              {task.duration > 0 && task.startTime && (
+              {/* Timer if duration > 0 (If no start time, TimeTracker should handle "Not Started" state or just show duration) */}
+              {task.duration > 0 && (
                 <div className="flex items-center">
                   <TimeTracker task={task} />
                 </div>
