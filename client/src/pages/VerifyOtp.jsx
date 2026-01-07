@@ -4,7 +4,7 @@ import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import usePageTitle from "../hooks/usePageTitle";
-import usePageTitle from "../hooks/usePageTitle";
+
 
 const VerifyOtp = () => {
     usePageTitle("Verify Email - Doora");
