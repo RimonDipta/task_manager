@@ -102,22 +102,93 @@ const LandingPage = () => {
                     </div>
                 </motion.div>
 
-                {/* Hero Image/Mockup */}
+                {/* Hero Dashboard Abstract Mockup */}
                 <motion.div
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4, duration: 0.8 }}
-                    className="mt-20 relative mx-auto max-w-4xl"
+                    className="mt-20 relative mx-auto max-w-5xl"
                 >
-                    <div className="rounded-xl overflow-hidden shadow-2xl border border-slate-700/50 bg-[#1e293b]/50 backdrop-blur-sm p-2">
-                        <img
-                            src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?q=80&w=2669&auto=format&fit=crop"
-                            alt="App Screenshot"
-                            className="rounded-lg w-full h-auto opacity-90"
-                        />
+                    <div className="rounded-2xl overflow-hidden shadow-2xl border border-slate-700/50 bg-[#0f172a] p-2 sm:p-4 perspective-1000 group">
+                        {/* Browser Bar */}
+                        <div className="h-8 bg-slate-800/50 rounded-t-xl flex items-center px-4 gap-2 mb-2">
+                            <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                            <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                            <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                            <div className="ml-4 h-4 w-64 bg-slate-700/50 rounded-full hidden sm:block"></div>
+                        </div>
+
+                        {/* Abstract Interior */}
+                        <div className="flex gap-4 h-[400px] sm:h-[500px] overflow-hidden bg-[#1e293b]/30 rounded-b-xl relative p-4">
+
+                            {/* Sidebar Shape */}
+                            <div className="w-16 sm:w-64 flex-shrink-0 flex flex-col gap-4">
+                                {/* Headerish */}
+                                <div className="h-10 w-10 sm:w-full bg-indigo-500/20 rounded-lg animate-pulse" style={{ animationDuration: '3s' }}></div>
+                                {/* Nav Items */}
+                                <div className="space-y-3">
+                                    {[1, 2, 3, 4].map(i => (
+                                        <div key={i} className="h-8 w-full bg-slate-700/30 rounded-lg"></div>
+                                    ))}
+                                </div>
+                                <div className="mt-auto h-12 w-full bg-slate-700/30 rounded-lg"></div>
+                            </div>
+
+                            {/* Main Concent Area */}
+                            <div className="flex-1 flex flex-col gap-4">
+                                {/* Header Strip */}
+                                <div className="h-16 w-full bg-slate-700/20 rounded-xl flex items-center justify-between px-4">
+                                    <div className="h-6 w-32 bg-slate-600/40 rounded-full"></div>
+                                    <div className="flex gap-2">
+                                        <div className="h-8 w-8 rounded-full bg-slate-600/40"></div>
+                                        <div className="h-8 w-8 rounded-full bg-indigo-500/40"></div>
+                                    </div>
+                                </div>
+
+                                {/* Content Grid */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1">
+                                    {/* Column 1 - Kanban */}
+                                    <div className="bg-slate-800/20 rounded-xl p-3 flex flex-col gap-3">
+                                        <div className="h-4 w-20 bg-slate-600/50 rounded"></div>
+                                        <div className="h-24 bg-slate-700/40 rounded-lg transform transition-transform hover:scale-105 duration-300"></div>
+                                        <div className="h-32 bg-slate-700/40 rounded-lg transform transition-transform hover:scale-105 duration-300 delay-100"></div>
+                                        <div className="h-20 bg-slate-700/40 rounded-lg transform transition-transform hover:scale-105 duration-300 delay-200"></div>
+                                    </div>
+                                    {/* Column 2 - Kanban */}
+                                    <div className="bg-slate-800/20 rounded-xl p-3 flex flex-col gap-3">
+                                        <div className="h-4 w-24 bg-slate-600/50 rounded"></div>
+                                        <div className="h-40 bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-3 transform transition-transform hover:-translate-y-1 duration-300">
+                                            <div className="h-3 w-16 bg-indigo-500/30 rounded mb-2"></div>
+                                            <div className="space-y-2">
+                                                <div className="h-2 w-full bg-indigo-500/20 rounded"></div>
+                                                <div className="h-2 w-3/4 bg-indigo-500/20 rounded"></div>
+                                            </div>
+                                            <div className="mt-8 flex gap-2">
+                                                <div className="h-6 w-6 rounded-full bg-indigo-400"></div>
+                                                <div className="h-6 w-6 rounded-full bg-purple-400 ml-[-10px] border-2 border-[#1e293b]"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Column 3 - Stats */}
+                                    <div className="bg-slate-800/20 rounded-xl p-3 hidden sm:flex flex-col gap-3">
+                                        <div className="h-4 w-16 bg-slate-600/50 rounded"></div>
+                                        <div className="flex-1 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-lg border border-white/5 relative overflow-hidden">
+                                            {/* Abstract Chart */}
+                                            <div className="absolute bottom-0 left-0 right-0 h-32 flex items-end justify-between px-2 gap-1 opacity-50">
+                                                <div className="w-full bg-indigo-500/30 h-[40%] rounded-t-sm"></div>
+                                                <div className="w-full bg-indigo-500/40 h-[70%] rounded-t-sm"></div>
+                                                <div className="w-full bg-indigo-500/20 h-[50%] rounded-t-sm"></div>
+                                                <div className="w-full bg-indigo-500/60 h-[80%] rounded-t-sm"></div>
+                                                <div className="w-full bg-indigo-500/40 h-[60%] rounded-t-sm"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         {/* Floating elements */}
-                        <div className="absolute -top-12 -left-12 p-4 rounded-xl bg-[#1e293b] border border-slate-700 shadow-xl hidden md:block animate-bounce" style={{ animationDuration: '3s' }}>
+                        <div className="absolute top-[20%] -left-6 sm:-left-12 p-4 rounded-xl bg-[#1e293b] border border-slate-700 shadow-2xl animate-bounce z-10" style={{ animationDuration: '3s' }}>
                             <div className="flex items-center gap-3">
                                 <div className="p-2 rounded-full bg-green-500/20 text-green-400"><CheckCircle size={20} /></div>
                                 <div>
@@ -127,7 +198,7 @@ const LandingPage = () => {
                             </div>
                         </div>
 
-                        <div className="absolute -bottom-8 -right-8 p-4 rounded-xl bg-[#1e293b] border border-slate-700 shadow-xl hidden md:block animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+                        <div className="absolute bottom-[20%] -right-6 sm:-right-12 p-4 rounded-xl bg-[#1e293b] border border-slate-700 shadow-2xl animate-bounce z-10" style={{ animationDuration: '4s', animationDelay: '1s' }}>
                             <div className="flex items-center gap-3">
                                 <div className="p-2 rounded-full bg-purple-500/20 text-purple-400"><Kanban size={20} /></div>
                                 <div>
@@ -136,6 +207,10 @@ const LandingPage = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Glow effect behind */}
+                        <div className="absolute inset-0 bg-indigo-500/10 blur-[100px] -z-10 group-hover:bg-indigo-500/20 transition-all duration-1000"></div>
+
                     </div>
                 </motion.div>
             </header>
@@ -201,6 +276,98 @@ const LandingPage = () => {
                                 <Zap size={200} />
                             </div>
                         </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* About Section */}
+            <section id="about" className="py-24 px-4 bg-[#0f172a] relative">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0f172a] to-[#1e293b] opacity-50 -z-10"></div>
+                <div className="max-w-4xl mx-auto text-center">
+                    <h2 className="text-3xl md:text-5xl font-bold mb-8">Built for speed and simplicity</h2>
+                    <p className="text-xl text-slate-400 mb-12 leading-relaxed">
+                        We believe that project management tools shouldn't be a project themselves.
+                        Doora was born from the frustration of complex, bloated software.
+                        Our mission is to help you stay in flow and accomplish your best work.
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                        <div className="p-4">
+                            <div className="text-4xl font-bold text-indigo-400 mb-2">10k+</div>
+                            <div className="text-sm text-slate-500">Active Users</div>
+                        </div>
+                        <div className="p-4">
+                            <div className="text-4xl font-bold text-purple-400 mb-2">5M+</div>
+                            <div className="text-sm text-slate-500">Tasks Completed</div>
+                        </div>
+                        <div className="p-4">
+                            <div className="text-4xl font-bold text-pink-400 mb-2">99.9%</div>
+                            <div className="text-sm text-slate-500">Uptime</div>
+                        </div>
+                        <div className="p-4">
+                            <div className="text-4xl font-bold text-green-400 mb-2">24/7</div>
+                            <div className="text-sm text-slate-500">Support</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Pricing Section */}
+            <section id="pricing" className="py-24 px-4">
+                <div className="max-w-6xl mx-auto">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6">Simple, transparent pricing</h2>
+                        <p className="text-slate-400 max-w-2xl mx-auto">
+                            Start for free, upgrade when you need to.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Free Tier */}
+                        <div className="bg-[#1e293b]/40 border border-slate-700 rounded-3xl p-8 hover:border-slate-500 transition-colors">
+                            <div className="text-xl font-bold mb-4 text-slate-300">Starter</div>
+                            <div className="text-4xl font-bold mb-6">$0</div>
+                            <ul className="space-y-4 mb-8 text-slate-400 text-sm">
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400" /> Up to 5 projects</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400" /> Basic Analytics</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400" /> 1 User</li>
+                            </ul>
+                            <Link to="/register" className="block w-full py-3 rounded-full border border-slate-600 text-center font-medium hover:bg-slate-800 transition-colors">
+                                Get Started
+                            </Link>
+                        </div>
+
+                        {/* Pro Tier */}
+                        <div className="bg-[#1e293b] border border-indigo-500 rounded-3xl p-8 relative shadow-2xl shadow-indigo-500/10 scale-105">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-b-lg">
+                                MOST POPULAR
+                            </div>
+                            <div className="text-xl font-bold mb-4 text-indigo-400">Pro</div>
+                            <div className="text-4xl font-bold mb-6">$12 <span className="text-lg text-slate-500 font-normal">/mo</span></div>
+                            <ul className="space-y-4 mb-8 text-slate-300 text-sm">
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-indigo-400" /> Unlimited projects</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-indigo-400" /> Advanced Analytics</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-indigo-400" /> Up to 5 Team Members</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-indigo-400" /> Custom Workflows</li>
+                            </ul>
+                            <Link to="/register" className="block w-full py-3 rounded-full bg-indigo-600 text-white text-center font-bold hover:bg-indigo-500 transition-colors shadow-lg">
+                                Start 14-day Free Trial
+                            </Link>
+                        </div>
+
+                        {/* Team Tier */}
+                        <div className="bg-[#1e293b]/40 border border-slate-700 rounded-3xl p-8 hover:border-slate-500 transition-colors">
+                            <div className="text-xl font-bold mb-4 text-slate-300">Enterprise</div>
+                            <div className="text-4xl font-bold mb-6">$49 <span className="text-lg text-slate-500 font-normal">/mo</span></div>
+                            <ul className="space-y-4 mb-8 text-slate-400 text-sm">
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400" /> Unlimited Team Members</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400" /> SSO & Advanced Security</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400" /> 24/7 Priority Support</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400" /> Custom Integrations</li>
+                            </ul>
+                            <Link to="/register" className="block w-full py-3 rounded-full border border-slate-600 text-center font-medium hover:bg-slate-800 transition-colors">
+                                Contact Sales
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </section>
