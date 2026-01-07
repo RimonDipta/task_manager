@@ -73,7 +73,7 @@ const Layout = () => {
                     </button>
                     <div className="flex items-center gap-2 font-bold text-[var(--primary-color)]">
                         <Zap size={20} />
-                        <span>TaskMaster</span>
+                        <span>Doora</span>
                     </div>
                     <div className="w-8" /> {/* Spacer for centering */}
                 </div>

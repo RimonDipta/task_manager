@@ -6,8 +6,10 @@ import { useToast } from "../context/ToastContext";
 
 import PasswordStrength from "../components/PasswordStrength";
 import { getPasswordStrength } from "../utils/passwordStrength";
+import usePageTitle from "../hooks/usePageTitle";
 
 const Register = () => {
+  usePageTitle("Create Account - Doora");
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const { showToast } = useToast();

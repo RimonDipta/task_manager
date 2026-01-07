@@ -5,8 +5,10 @@ import { AuthContext } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { ShieldCheck, Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
+import usePageTitle from "../hooks/usePageTitle";
 
 const Login = () => {
+  usePageTitle("Login - Doora");
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

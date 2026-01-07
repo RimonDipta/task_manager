@@ -3,9 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import usePageTitle from "../hooks/usePageTitle";
+import usePageTitle from "../hooks/usePageTitle";
 
 const VerifyOtp = () => {
-    const location = useLocation();
+    usePageTitle("Verify Email - Doora");
+    const { state } = useLocation();
     const navigate = useNavigate();
     const { setUser } = useContext(AuthContext);
     const { showToast } = useToast();

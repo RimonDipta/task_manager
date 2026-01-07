@@ -6,6 +6,7 @@ import TaskList from "../components/TaskList";
 import KanbanBoard from "../components/KanbanBoard";
 import Analytics from "../components/Analytics";
 import DisplayMenu from "../components/DisplayMenu";
+import usePageTitle from "../hooks/usePageTitle";
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
@@ -32,6 +33,16 @@ const Dashboard = () => {
       : isCompletedView
         ? "completed"
         : "today"; // Default
+
+  // Dynamic Title
+  let pageTitle = "Dashboard - Doora";
+  if (isTodayView) pageTitle = "Today - Doora";
+  if (isUpcomingView) pageTitle = "Upcoming - Doora";
+  if (isCompletedView) pageTitle = "Completed - Doora";
+  if (isKanbanRoute) pageTitle = "Kanban - Doora";
+  if (isAnalyticsView) pageTitle = "Analytics - Doora";
+
+  usePageTitle(pageTitle);
 
   // State
   const [layout, setLayout] = useState("list");
