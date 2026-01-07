@@ -45,7 +45,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal, onMo
 
     return (
         <div
-            className={`${isCollapsed ? "w-16" : "w-64"} bg-[var(--bg-sidebar)] h-screen border-r border-[var(--border-color)] flex flex-col fixed left-0 top-0 z-10 transition-all duration-300`}
+            className={`${isMobile ? "w-full h-full" : `${isCollapsed ? "w-16" : "w-64"} h-screen fixed left-0 top-0`} bg-[var(--bg-sidebar)] border-r border-[var(--border-color)] flex flex-col z-10 transition-all duration-300`}
         >
             {/* Header */}
             <div className="p-3 flex items-center justify-between h-14 border-b border-[var(--border-color)] shrink-0">
