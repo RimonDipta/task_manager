@@ -115,7 +115,7 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
       }
     }
 
-    const totalDurationMinutes = (parseInt(duration.h) || 0) * 60 + (parseInt(duration.m) || 0);
+    const totalDurationMinutes = (duration.h || 0) * 60 + (duration.m || 0);
 
     // If "No Time" (Time is empty) and we have a duration, start immediately?
     // User logic: "If no time is slected duration time should start as soon as user add the tasks"

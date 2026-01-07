@@ -36,7 +36,7 @@ export const getTasks = async (req, res) => {
 // @route POST /api/tasks
 export const createTask = async (req, res) => {
   try {
-    const { title, description, priority, dueDate, recurrence, reminder } = req.body;
+    const { title, description, priority, dueDate, recurrence, reminder, duration, startTime, tags, status, isAutoPriority } = req.body;
 
     if (!title) {
       return res.status(400).json({ message: "Title is required" });
@@ -50,6 +50,11 @@ export const createTask = async (req, res) => {
       dueDate,
       recurrence,
       reminder,
+      duration,
+      startTime,
+      tags,
+      status,
+      isAutoPriority
     });
 
     res.status(201).json(task);
