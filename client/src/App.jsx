@@ -14,6 +14,7 @@ import Layout from "./components/Layout";
 import { useEffect } from "react";
 
 import LandingPage from "./pages/LandingPage"; // Import LandingPage
+import HomeView from "./pages/HomeView"; // Import HomeView
 
 function App() {
 
