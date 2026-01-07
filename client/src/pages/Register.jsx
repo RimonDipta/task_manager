@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../api/authApi";
 import { AuthContext } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import { Eye, EyeOff } from "lucide-react";
 
 import PasswordStrength from "../components/PasswordStrength";
 import { getPasswordStrength } from "../utils/passwordStrength";
