@@ -13,7 +13,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./components/Layout";
 import { useEffect } from "react";
 
-import HomeView from "./pages/HomeView"; // Import HomeView
+import LandingPage from "./pages/LandingPage"; // Import LandingPage
 
 function App() {
 
@@ -29,6 +29,7 @@ function App() {
           <ToastProvider>
             <TaskProvider>
               <Routes>
+                <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/verify-email/:token" element={<VerifyEmail />} />
@@ -94,7 +95,7 @@ function App() {
                     }
                   />
                 </Route>
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </TaskProvider>
           </ToastProvider>
