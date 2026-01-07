@@ -35,7 +35,8 @@ const VerifyOtp = () => {
 
         try {
             setLoading(true);
-            const res = await api.post("/auth/verify-otp", { email, otp });
+            const cleanOtp = otp.trim();
+            const res = await api.post("/auth/verify-otp", { email, otp: cleanOtp });
             setUser(res.data);
             showToast("Email verified successfully!", "success");
             navigate("/");
