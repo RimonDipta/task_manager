@@ -16,7 +16,9 @@ import { format, isToday, isTomorrow, isValid } from "date-fns";
 import DatePopover from "./DatePopover";
 import PriorityLabelPopover from "./PriorityLabelPopover";
 import RepeatPopover from "./RepeatPopover";
+import RepeatPopover from "./RepeatPopover";
 import CustomRepeatModal from "./CustomRepeatModal";
+import TimePopover from "./TimePopover";
 
 const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
   const { addTask, updateTask } = useContext(TaskContext); // Destructure updateTask
@@ -26,9 +28,9 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("p4");
-  const [date, setDate] = useState(null); // Default Today
+  const [date, setDate] = useState(new Date()); // Default Today
   const [time, setTime] = useState("");
-  const [duration, setDuration] = useState({ h: 0, m: 0 });
+  const [duration, setDuration] = useState({ val: "", unit: "minutes" });
   const [repeat, setRepeat] = useState(null); // { type, interval, end }
   const [tags, setTags] = useState([]);
 
@@ -85,6 +87,9 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
       if (repeatRef.current && !repeatRef.current.contains(event.target)) {
         if (activePopover === 'repeat') setActivePopover(null);
       }
+      // Note: 'time' popover doesn't have a persistent ref in parent easily because it's conditional. 
+      // We rely on the TimePopover being closed by selecting or clicking the 'clear'/X.
+      // But standard click outside is good. We can add a ref to the container of the time input.
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -120,7 +125,8 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
       }
     }
 
-    const totalDurationMinutes = (duration.h || 0) * 60 + (duration.m || 0);
+    const durationVal = parseInt(duration.val) || 0;
+    const totalDurationMinutes = duration.unit === "hours" ? durationVal * 60 : durationVal;
 
     const taskData = {
       title,

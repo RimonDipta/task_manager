@@ -2,7 +2,8 @@ import { useContext, useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { TaskContext } from "../context/TaskContext";
 import { isToday, isFuture, isValid } from "date-fns";
-import { Flag } from "lucide-react";
+import { Flag, AlertCircle } from "lucide-react";
+import TimeTracker from "./TimeTracker";
 
 const KanbanBoard = ({ filterType = "all", filters }) => {
     const { tasks, updateTask } = useContext(TaskContext);
@@ -152,8 +153,22 @@ const KanbanBoard = ({ filterType = "all", filters }) => {
                                                             </div>
                                                         </div>
                                                         <p className="text-[var(--text-primary)] font-medium text-sm leading-snug">{item.title}</p>
+                                                        {/* Auto-Countdown logic */}
+                                                        {task.duration > 0 && task.startTime && !task.completed && (
+                                                            <TimeTracker task={task} />
+                                                        )}
+
                                                         {item.dueDate && (
-                                                            <div className="mt-3 flex items-center text-xs text-slate-400">
+                                                            <div className={`mt-3 flex items-center text-xs ${!item.completed && new Date(item.dueDate) < new Date().setHours(0, 0, 0, 0) ? "text-red-500 font-medium" : "text-slate-400"
+                                                                }`}>
+                                                                {/* Overdue Warning */}
+                                                                {!item.completed && new Date(item.dueDate) < new Date().setHours(0, 0, 0, 0) && (
+                                                                    <div className="flex items-center gap-1 mr-2 bg-red-50 px-1.5 py-0.5 rounded text-red-600 border border-red-100">
+                                                                        <AlertCircle size={10} />
+                                                                        <span>Overdue</span>
+                                                                    </div>
+                                                                )}
+
                                                                 📅 {new Date(item.dueDate).toLocaleDateString()}
                                                             </div>
                                                         )}
