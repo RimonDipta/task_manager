@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Lock, Check, AlertCircle } from "lucide-react";
+import { X, Lock, Check, AlertCircle, Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { useToast } from "../context/ToastContext";
 
@@ -8,6 +8,9 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showOldPassword, setShowOldPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
     if (!isOpen) return null;
@@ -61,38 +64,65 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
 
                     <div className="space-y-1">
                         <label className="block text-sm font-medium text-[var(--text-secondary)]">Current Password</label>
-                        <input
-                            type="password"
-                            required
-                            value={oldPassword}
-                            onChange={(e) => setOldPassword(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent outline-none transition-all"
-                            placeholder="Enter current password"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showOldPassword ? "text" : "password"}
+                                required
+                                value={oldPassword}
+                                onChange={(e) => setOldPassword(e.target.value)}
+                                className="w-full px-4 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent outline-none transition-all pr-10"
+                                placeholder="Enter current password"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowOldPassword(!showOldPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                            >
+                                {showOldPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="space-y-1">
                         <label className="block text-sm font-medium text-[var(--text-secondary)]">New Password</label>
-                        <input
-                            type="password"
-                            required
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent outline-none transition-all"
-                            placeholder="Min. 6 characters"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showNewPassword ? "text" : "password"}
+                                required
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="w-full px-4 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent outline-none transition-all pr-10"
+                                placeholder="Min. 6 characters"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowNewPassword(!showNewPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                            >
+                                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="space-y-1">
                         <label className="block text-sm font-medium text-[var(--text-secondary)]">Confirm New Password</label>
-                        <input
-                            type="password"
-                            required
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent outline-none transition-all"
-                            placeholder="Re-enter new password"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                required
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="w-full px-4 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent outline-none transition-all pr-10"
+                                placeholder="Re-enter new password"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                            >
+                                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="pt-4 flex gap-3">
