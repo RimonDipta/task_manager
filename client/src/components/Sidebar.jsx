@@ -16,10 +16,11 @@ import {
     Calendar,
     CalendarRange,
     CheckCircle,
-    Home
+    Home,
+    X
 } from "lucide-react";
 
-const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal }) => {
+const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal, onMobileClose, isMobile }) => {
     const { user, logoutUser } = useContext(AuthContext);
     const location = useLocation();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -64,7 +65,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal }) =>
                     onClick={toggleSidebar}
                     className={`p-1.5 rounded-lg bg-[var(--bg-surface)] hover:bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border-color)] transition-colors ${isCollapsed ? "absolute -right-3 top-6 shadow-sm z-50 rounded-full" : ""}`}
                 >
-                    {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={16} />}
+                    {isMobile ? <X size={20} /> : (isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={16} />)}
                 </button>
             </div>
 
@@ -86,6 +87,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal }) =>
 
                 <Link
                     to="/dashboard/home"
+                    onClick={() => onMobileClose && onMobileClose()}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group relative ${isActive("/dashboard/home")
                         ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
@@ -98,6 +100,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal }) =>
 
                 <Link
                     to="/dashboard/today"
+                    onClick={() => onMobileClose && onMobileClose()}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group relative ${isActive("/dashboard/today")
                         ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
@@ -110,6 +113,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal }) =>
 
                 <Link
                     to="/dashboard/upcoming"
+                    onClick={() => onMobileClose && onMobileClose()}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group relative ${isActive("/dashboard/upcoming")
                         ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
@@ -122,6 +126,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal }) =>
 
                 <Link
                     to="/dashboard/completed"
+                    onClick={() => onMobileClose && onMobileClose()}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group relative ${isActive("/dashboard/completed")
                         ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
@@ -134,6 +139,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal }) =>
 
                 <Link
                     to="/dashboard/kanban"
+                    onClick={() => onMobileClose && onMobileClose()}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group relative ${isActive("/dashboard/kanban")
                         ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
                         : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
