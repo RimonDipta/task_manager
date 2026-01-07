@@ -209,14 +209,15 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
               )}
             </div>
             {activePopover === "date" && (
-              <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setActivePopover(null)}>
-                <div className="relative shadow-2xl rounded-xl" onClick={(e) => e.stopPropagation()}>
-                  <DatePopover
-                    selectedDate={date}
-                    onSelect={(d) => { setDate(d); setActivePopover(null); }}
-                    onClose={() => setActivePopover(null)}
-                  />
-                </div>
+              <div
+                className="absolute bottom-full left-0 mb-2 z-[60] animate-in fade-in zoom-in-95"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <DatePopover
+                  selectedDate={date}
+                  onSelect={(d) => { setDate(d); setActivePopover(null); }}
+                  onClose={() => setActivePopover(null)}
+                />
               </div>
             )}
           </div>
