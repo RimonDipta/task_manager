@@ -50,6 +50,7 @@
     /* indigo-400 */
     --primary-light: #312e81;
     /* indigo-900 */
+    --color-scheme: dark;
   }
 
   .galaxy {
@@ -114,6 +115,7 @@
     /* sky-600 */
     --primary-light: #e0f2fe;
     /* sky-100 */
+    --color-scheme: light;
   }
 }
 

@@ -326,7 +326,7 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
                   type="time"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                  className="bg-transparent text-sm font-medium text-[var(--text-primary)] outline-none w-[100px] cursor-pointer"
+                  className="bg-transparent text-sm font-medium text-[var(--text-primary)] outline-none w-[100px] cursor-pointer appearance-none" style={{ colorScheme: 'var(--color-scheme)' }}
                 />
               </div>
 

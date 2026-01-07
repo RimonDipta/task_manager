@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { X, Calendar as CalendarIcon } from "lucide-react";
+import DatePopover from "./DatePopover";
+import { format } from "date-fns";
 
 const CustomRepeatModal = ({ onClose, onSave, initialConfig }) => {
     const [frequency, setFrequency] = useState(initialConfig?.interval || 1);
     const [unit, setUnit] = useState(initialConfig?.type || "daily");
     const [ends, setEnds] = useState("never"); // never, date
     const [endDate, setEndDate] = useState("");
+    const [showDatePopover, setShowDatePopover] = useState(false);
 
     const handleSave = () => {
         onSave({
@@ -93,13 +96,30 @@ const CustomRepeatModal = ({ onClose, onSave, initialConfig }) => {
                             </label>
 
                             {ends === "date" && (
-                                <div className="ml-6">
-                                    <input
-                                        type="date"
-                                        value={endDate}
-                                        onChange={(e) => setEndDate(e.target.value)}
-                                        className="w-full px-3 py-1.5 text-sm bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)] outline-none"
-                                    />
+                                <div className="ml-6 relative">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowDatePopover(!showDatePopover)}
+                                        className="w-full flex items-center justify-between px-3 py-2 text-sm bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)] hover:border-[var(--primary-color)] transition-colors"
+                                    >
+                                        <span>
+                                            {endDate ? format(new Date(endDate), "PPP") : "Select date"}
+                                        </span>
+                                        <CalendarIcon size={14} className="text-[var(--text-tertiary)]" />
+                                    </button>
+
+                                    {showDatePopover && (
+                                        <div className="absolute top-full left-0 mt-2 z-50">
+                                            <DatePopover
+                                                selectedDate={endDate}
+                                                onSelect={(d) => {
+                                                    setEndDate(format(d, "yyyy-MM-dd"));
+                                                    setShowDatePopover(false);
+                                                }}
+                                                onClose={() => setShowDatePopover(false)}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
