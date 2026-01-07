@@ -1,14 +1,15 @@
-import { useEffect, useContext } from "react";
+import { useEffect, useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { AuthContext } from "../context/AuthContext";
-import { Zap, CheckCircle, Kanban, BarChart3, ArrowRight, Star } from "lucide-react";
+import { Zap, CheckCircle, Kanban, BarChart3, ArrowRight, Star, Menu, X } from "lucide-react";
 import usePageTitle from "../hooks/usePageTitle";
 
 const LandingPage = () => {
     usePageTitle("Doora - The Future of Work");
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Redirect if already logged in
     useEffect(() => {
