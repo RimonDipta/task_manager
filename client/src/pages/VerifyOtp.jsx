@@ -17,7 +17,7 @@ const VerifyOtp = () => {
     const [loading, setLoading] = useState(false);
 
     // Get email from router state or redirect to login
-    const email = location.state?.email;
+    const email = state?.email;
 
     useEffect(() => {
         if (!email) {
