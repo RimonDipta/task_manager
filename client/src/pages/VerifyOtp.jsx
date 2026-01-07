@@ -67,7 +67,7 @@ const VerifyOtp = () => {
                         Please verify yourself to use the app.
                     </p>
                     <p className="text-xs text-[var(--text-secondary)] opacity-70 mt-1">
-                        Check <span className="font-medium text-[var(--text-primary)]">{email}</span> to see the OTP.
+                        Check <span className="font-medium text-[var(--text-primary)]">{email}</span> (and your spam folder) to see the OTP.
                     </p>
                 </div>
 
