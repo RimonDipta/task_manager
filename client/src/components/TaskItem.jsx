@@ -63,9 +63,19 @@ const TaskItem = ({ task }) => {
       <div className="flex-1 min-w-0 space-y-1.5 cursor-pointer" onClick={() => openTaskModal && openTaskModal(task)}>
 
         {/* Title */}
-        <h3 className={`text-base font-semibold leading-tight text-[var(--text-primary)] ${task.completed ? "line-through text-[var(--text-tertiary)]" : ""}`}>
-          {task.title}
-        </h3>
+        <div className="flex items-center gap-2">
+          <h3 className={`text-base font-semibold leading-tight text-[var(--text-primary)] ${task.completed ? "line-through text-[var(--text-tertiary)]" : ""}`}>
+            {task.title}
+          </h3>
+          {task.priority && task.priority !== 'p4' && (
+            <Flag size={14} className={
+              task.priority === 'p1' ? "fill-red-500 text-red-600" :
+                task.priority === 'p2' ? "fill-amber-500 text-amber-600" :
+                  task.priority === 'p3' ? "fill-green-500 text-green-600" :
+                    "text-[var(--text-tertiary)]"
+            } />
+          )}
+        </div>
 
         {/* Description */}
         {task.description && (
