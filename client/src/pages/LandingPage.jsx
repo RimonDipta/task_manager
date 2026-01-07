@@ -30,35 +30,75 @@ const LandingPage = () => {
             </div>
 
             {/* Navbar - Capsule Glass Effect */}
-            <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 animate-fadeIn" style={{ animationDuration: '0.8s' }}>
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-full px-6 py-2.5 flex items-center gap-8 shadow-2xl ring-1 ring-white/5">
+            <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center animate-fadeIn" style={{ animationDuration: '0.8s' }}>
+                <div className="relative">
+                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-full px-6 py-2.5 flex items-center gap-8 shadow-2xl ring-1 ring-white/5 mx-4 md:mx-0">
 
-                    {/* Logo */}
-                    <div className="flex items-center gap-2 font-bold text-lg tracking-tight">
-                        <div className="relative">
-                            <Zap className="w-5 h-5 text-indigo-400 fill-indigo-400/20" />
-                            <div className="absolute inset-0 bg-indigo-400 blur-lg opacity-40"></div>
+                        {/* Logo */}
+                        <div className="flex items-center gap-2 font-bold text-lg tracking-tight">
+                            <div className="relative">
+                                <Zap className="w-5 h-5 text-indigo-400 fill-indigo-400/20" />
+                                <div className="absolute inset-0 bg-indigo-400 blur-lg opacity-40"></div>
+                            </div>
+                            <span>Doora</span>
                         </div>
-                        <span>Doora</span>
+
+                        {/* Desktop Links */}
+                        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-400">
+                            <a href="#features" className="hover:text-white transition-colors">Features</a>
+                            <a href="#about" className="hover:text-white transition-colors">About</a>
+                            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+                        </div>
+
+                        {/* Desktop Auth Buttons */}
+                        <div className="hidden md:flex items-center gap-2 pl-4 border-l border-white/10">
+                            <Link to="/login" className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-2">
+                                Log in
+                            </Link>
+                            <Link to="/register" className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-full transition-all shadow-[0_0_20px_-5px_rgba(79,70,229,0.5)] hover:shadow-[0_0_25px_-5px_rgba(79,70,229,0.7)] flex items-center gap-1 group">
+                                Start for free
+                                <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                            </Link>
+                        </div>
+
+                        {/* Mobile Menu Button */}
+                        <div className="md:hidden flex items-center ml-auto pl-4 border-l border-white/10">
+                            <button
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="text-slate-300 hover:text-white transition-colors p-1"
+                            >
+                                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Links */}
-                    <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-400">
-                        <a href="#features" className="hover:text-white transition-colors">Features</a>
-                        <a href="#about" className="hover:text-white transition-colors">About</a>
-                        <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-                    </div>
-
-                    {/* Auth Buttons */}
-                    <div className="flex items-center gap-2 pl-4 border-l border-white/10">
-                        <Link to="/login" className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-2">
-                            Log in
-                        </Link>
-                        <Link to="/register" className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-full transition-all shadow-[0_0_20px_-5px_rgba(79,70,229,0.5)] hover:shadow-[0_0_25px_-5px_rgba(79,70,229,0.7)] flex items-center gap-1 group">
-                            Start for free
-                            <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
-                        </Link>
-                    </div>
+                    {/* Mobile Menu Dropdown */}
+                    <AnimatePresence>
+                        {isMobileMenuOpen && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                                transition={{ duration: 0.2 }}
+                                className="absolute top-full left-0 right-0 mt-2 mx-4 md:hidden bg-[#0f172a] border border-slate-700 rounded-2xl shadow-2xl p-4 overflow-hidden"
+                            >
+                                <div className="flex flex-col space-y-4">
+                                    <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400 hover:text-white transition-colors py-2 px-2 hover:bg-slate-800/50 rounded-lg">Features</a>
+                                    <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400 hover:text-white transition-colors py-2 px-2 hover:bg-slate-800/50 rounded-lg">About</a>
+                                    <a href="#pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400 hover:text-white transition-colors py-2 px-2 hover:bg-slate-800/50 rounded-lg">Pricing</a>
+                                    <div className="h-px bg-slate-800 my-2"></div>
+                                    <div className="flex flex-col gap-3">
+                                        <Link to="/login" className="text-center w-full py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                                            Log in
+                                        </Link>
+                                        <Link to="/register" className="text-center w-full py-2.5 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition-colors shadow-lg">
+                                            Start for free
+                                        </Link>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </nav>
 
