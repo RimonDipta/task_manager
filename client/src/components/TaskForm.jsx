@@ -209,12 +209,14 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
               )}
             </div>
             {activePopover === "date" && (
-              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50">
-                <DatePopover
-                  selectedDate={date}
-                  onSelect={(d) => { setDate(d); setActivePopover(null); }}
-                  onClose={() => setActivePopover(null)}
-                />
+              <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setActivePopover(null)}>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <DatePopover
+                    selectedDate={date}
+                    onSelect={(d) => { setDate(d); setActivePopover(null); }}
+                    onClose={() => setActivePopover(null)}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -366,18 +368,29 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
             <div className="flex flex-wrap gap-4 items-end">
 
               {/* Time Input */}
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 relative">
                 <label className="text-xs text-[var(--text-secondary)]">Start Time</label>
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2 bg-[var(--bg-surface)] px-2 py-1.5 rounded-lg border border-[var(--border-color)] focus-within:ring-1 focus-within:ring-[var(--primary-color)] transition-all">
+                  <div
+                    onClick={() => setActivePopover('time')}
+                    className="flex items-center gap-2 bg-[var(--bg-surface)] px-2 py-1.5 rounded-lg border border-[var(--border-color)] cursor-pointer hover:border-[var(--primary-color)] transition-colors"
+                  >
                     <AlarmClock size={15} className="text-[var(--primary-color)]" />
-                    <input
-                      type="time"
-                      value={time}
-                      onChange={(e) => setTime(e.target.value)}
-                      className="bg-transparent text-sm font-medium text-[var(--text-primary)] outline-none w-[100px] cursor-pointer appearance-none" style={{ colorScheme: 'var(--color-scheme)' }}
-                    />
+                    <span className={`text-sm font-medium ${time ? "text-[var(--text-primary)]" : "text-[var(--text-tertiary)]"}`}>
+                      {time || "00:00"}
+                    </span>
                   </div>
+
+                  {activePopover === 'time' && (
+                    <div className="absolute top-full mt-2 left-0 z-50">
+                      <TimePopover
+                        selectedTime={time}
+                        onSelect={(t) => { setTime(t); setActivePopover(null); }}
+                        onClose={() => setActivePopover(null)}
+                      />
+                    </div>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => setTime("")}
