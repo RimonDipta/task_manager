@@ -10,9 +10,7 @@ const sendEmail = async (options) => {
 
     // Use 'onboarding@resend.dev' if you don't have a custom domain verified in Resend yet.
     // If you verified a domain (e.g., 'updates@myapp.com'), update FROM_EMAIL in your .env
-    const fromAddress = process.env.FROM_EMAIL && process.env.FROM_EMAIL.includes('@resend.dev')
-        ? process.env.FROM_EMAIL
-        : 'onboarding@resend.dev';
+    const fromAddress = process.env.FROM_EMAIL || 'onboarding@resend.dev';
 
     console.log(`Attempting to send email via Resend to ${options.email}...`);
 
