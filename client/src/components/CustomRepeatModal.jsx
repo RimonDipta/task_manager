@@ -17,8 +17,14 @@ const CustomRepeatModal = ({ onClose, onSave, initialConfig }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-[var(--bg-card)] w-full max-w-[320px] rounded-2xl shadow-2xl border border-[var(--border-color)] overflow-hidden">
+        <div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+            onClick={onClose}
+        >
+            <div
+                className="bg-[var(--bg-card)] w-full max-w-[320px] rounded-2xl shadow-2xl border border-[var(--border-color)] overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+            >
 
                 {/* Header */}
                 <div className="px-4 py-3 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-surface)]">

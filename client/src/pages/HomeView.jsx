@@ -36,7 +36,7 @@ const HomeView = () => {
                         <a href="/dashboard/today" className="text-sm text-[var(--primary-color)] hover:underline">View all</a>
                     </div>
 
-                    <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] overflow-hidden">
+                    <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] overflow-hidden p-4">
                         {/* Show top 3 tasks (Today + Overdue + Future P1, sorted by Priority) */}
                         <TaskList filterType="top_priorities" embedded={true} limit={3} />
                     </div>
