@@ -11,13 +11,29 @@ const TaskList = ({ filterType = "all", filters, layout = "list", limit }) => {
 
   const filteredTasks = [...tasks]
     .filter((task) => {
-      // 1. Date Filtering (Today / Upcoming)
+      // 1. Date Filtering (Today / Upcoming / Top Priorities)
       if (filterType === "today") {
-        // Show if NO due date OR if due date is Today
         if (!task.dueDate) return true;
         const date = new Date(task.dueDate);
-        if (!isValid(date)) return true; // Treat invalid as no date (or handle differently?) -> Let's treat as today/backlog
+        if (!isValid(date)) return true;
         return isToday(date);
+      }
+
+      if (filterType === "top_priorities") {
+        // Logic: Today (or no date) OR Future High Priority (P1)
+        // Also typically exclude completed for priorities
+        if (task.completed) return false;
+
+        let isRelevantDate = false;
+        if (!task.dueDate) isRelevantDate = true;
+        else {
+          const date = new Date(task.dueDate);
+          if (!isValid(date)) isRelevantDate = true;
+          else if (isToday(date)) isRelevantDate = true;
+          else if (isFuture(date) && task.priority === 'p1') isRelevantDate = true;
+        }
+
+        return isRelevantDate;
       }
 
       if (filterType === "upcoming") {
@@ -35,15 +51,9 @@ const TaskList = ({ filterType = "all", filters, layout = "list", limit }) => {
         return false;
 
       // Status Filter logic
-      // If we are NOT in completed view, we typically show pending.
-      // We will respect `filters.status` if set, otherwise default to showing pending (unless user explicitly filters for all/completed).
-      // However, simplified logic:
       if (filterType === "completed") {
         // Already handled above
       } else {
-        // In Today/Upcoming, we generally don't show completed tasks unless requested?
-        // User didn't specify, but "Completed" view suggests separation.
-        // Let's hide completed tasks in Today/Upcoming by default.
         if (!task.completed) return true; // Show pending
         return false; // Hide completed
       }
@@ -51,6 +61,12 @@ const TaskList = ({ filterType = "all", filters, layout = "list", limit }) => {
       return true;
     })
     .sort((a, b) => {
+      // For Top Priorities, ensure P1 is at top?
+      // Default sorting is fine, but maybe prioritize Priority for "top_priorities" view explicitly if needed.
+      // Current logic sorts by what's passed in `filters`, or default.
+      // Let's force priority sort for "top_priorities" if no specific sort is active, or just respect user sort.
+      // User sort is usually better.
+
       if (filters && filters.sort === "newest")
         return new Date(b.createdAt) - new Date(a.createdAt);
 
@@ -95,8 +111,7 @@ const TaskList = ({ filterType = "all", filters, layout = "list", limit }) => {
 
       {displayTasks.length === 0 ? (
         <div className="text-center py-12 bg-[var(--bg-card)] rounded-xl border border-dashed border-[var(--border-color)]">
-          <p className="text-[var(--text-secondary)] font-medium">No tasks found matching your filters</p>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">Try adjusting your display settings</p>
+          <p className="text-[var(--text-secondary)] font-medium">No tasks to show</p>
         </div>
       ) : (
         <div className={layout === "board"

@@ -37,8 +37,8 @@ const HomeView = () => {
                     </div>
 
                     <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] overflow-hidden">
-                        {/* Show top 3 tasks (Today + Overdue, sorted by Priority) */}
-                        <TaskList filterType="today" embedded={true} limit={3} />
+                        {/* Show top 3 tasks (Today + Overdue + Future P1, sorted by Priority) */}
+                        <TaskList filterType="top_priorities" embedded={true} limit={3} />
                     </div>
                 </div>
 
