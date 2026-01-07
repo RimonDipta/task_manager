@@ -1,88 +1,116 @@
-import React from "react";
-import { X, Clock, Sun, Sunset, Moon } from "lucide-react";
-import { format, addHours, startOfHour, setHours, setMinutes } from "date-fns";
+import React, { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 
 const TimePopover = ({ selectedTime, onSelect, onClose }) => {
-    // Predefined slots
-    const slots = [
-        { label: "Morning", time: "09:00", icon: <Sun size={16} className="text-amber-500" /> },
-        { label: "Afternoon", time: "13:00", icon: <Sun size={16} className="text-orange-500" /> },
-        { label: "Evening", time: "18:00", icon: <Sunset size={16} className="text-indigo-500" /> },
-        { label: "Night", time: "21:00", icon: <Moon size={16} className="text-purple-500" /> },
-    ];
+    // Parse initial time or default to current rounded time
+    const [hour, setHour] = useState(12);
+    const [minute, setMinute] = useState(0);
+    const [period, setPeriod] = useState("PM");
 
-    // Generate hourly slots for the scrollable list
-    const hours = Array.from({ length: 24 }).map((_, i) => i);
-    const minutes = [0, 15, 30, 45];
+    useEffect(() => {
+        if (selectedTime) {
+            const [h, m] = selectedTime.split(':').map(Number);
+            let parsedHour = h > 12 ? h - 12 : h === 0 ? 12 : h;
+            let parsedPeriod = h >= 12 ? "PM" : "AM";
+            setHour(parsedHour);
+            setMinute(m);
+            setPeriod(parsedPeriod);
+        } else {
+            // Default to now
+            const now = new Date();
+            let h = now.getHours();
+            let m = now.getMinutes();
+            // Round to nearest 5
+            m = Math.round(m / 5) * 5;
+            if (m === 60) { m = 0; h += 1; }
 
-    const handleCustomTime = (h, m) => {
-        const timeString = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+            let parsedHour = h > 12 ? h - 12 : h === 0 ? 12 : h;
+            let parsedPeriod = h >= 12 ? "PM" : "AM";
+            setHour(parsedHour);
+            setMinute(m);
+            setPeriod(parsedPeriod);
+        }
+    }, []);
+
+    const handleSave = () => {
+        let h = hour;
+        if (period === "PM" && h !== 12) h += 12;
+        if (period === "AM" && h === 12) h = 0;
+
+        const timeString = `${h.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         onSelect(timeString);
     };
 
+    const adjustHour = (delta) => {
+        let newH = hour + delta;
+        if (newH > 12) newH = 1;
+        if (newH < 1) newH = 12;
+        setHour(newH);
+    };
+
+    const adjustMinute = (delta) => {
+        let newM = minute + delta;
+        if (newM > 55) newM = 0;
+        if (newM < 0) newM = 55;
+        setMinute(newM);
+    };
+
     return (
-        <div className="absolute top-10 left-0 z-50 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-xl w-[280px] p-2 animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute top-10 left-0 z-50 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-xl p-4 animate-in fade-in zoom-in-95 duration-200 flex flex-col gap-4 items-center min-w-[200px]">
 
-            {/* Header / No Time */}
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[var(--border-color)] px-2 pt-1">
-                <span className="text-xs font-semibold text-[var(--text-tertiary)] uppercase">Select Time</span>
-                <button
-                    onClick={() => onSelect("")}
-                    className="text-xs text-[var(--text-secondary)] hover:text-red-500 transition-colors"
-                >
-                    Clear
-                </button>
-            </div>
+            {/* Stepper Controls */}
+            <div className="flex items-center gap-4">
 
-            {/* Quick Slots */}
-            <div className="grid grid-cols-2 gap-1 mb-3">
-                {slots.map((slot) => (
+                {/* Time Dial */}
+                <div className="flex flex-col gap-2">
+                    {/* Hour Row */}
+                    <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => adjustHour(-1)} className="p-1 hover:bg-[var(--bg-surface)] rounded-full text-[var(--text-secondary)]"><ChevronLeft size={16} /></button>
+                        <div className="w-12 h-12 rounded-full bg-[var(--bg-surface)] flex items-center justify-center border border-[var(--border-color)]">
+                            <span className="text-lg font-bold text-[var(--text-primary)]">{hour.toString().padStart(2, '0')}</span>
+                        </div>
+                        <button type="button" onClick={() => adjustHour(1)} className="p-1 hover:bg-[var(--bg-surface)] rounded-full text-[var(--text-secondary)]"><ChevronRight size={16} /></button>
+                    </div>
+
+                    {/* Minute Row */}
+                    <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => adjustMinute(-5)} className="p-1 hover:bg-[var(--bg-surface)] rounded-full text-[var(--text-secondary)]"><ChevronLeft size={16} /></button>
+                        <div className="w-12 h-12 rounded-full bg-[var(--bg-surface)] flex items-center justify-center border border-[var(--border-color)]">
+                            <span className="text-lg font-bold text-[var(--text-primary)]">{minute.toString().padStart(2, '0')}</span>
+                        </div>
+                        <button type="button" onClick={() => adjustMinute(5)} className="p-1 hover:bg-[var(--bg-surface)] rounded-full text-[var(--text-secondary)]"><ChevronRight size={16} /></button>
+                    </div>
+                </div>
+
+                {/* AM/PM Toggle */}
+                <div className="flex flex-col gap-1">
                     <button
-                        key={slot.label}
-                        onClick={() => onSelect(slot.time)}
-                        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[var(--bg-surface)] text-sm text-[var(--text-primary)] transition-colors border border-transparent hover:border-[var(--border-color)]"
+                        type="button"
+                        onClick={() => setPeriod("AM")}
+                        className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-colors ${period === "AM" ? "bg-amber-100 text-amber-700" : "text-[var(--text-tertiary)] hover:bg-[var(--bg-surface)]"}`}
                     >
-                        {slot.icon}
-                        <span>{slot.label}</span>
-                        <span className="ml-auto text-[10px] text-[var(--text-tertiary)]">{slot.time}</span>
+                        AM
                     </button>
-                ))}
-            </div>
-
-            {/* Manual Selection (Scrollable Columns) */}
-            <div className="h-32 flex border-t border-[var(--border-color)] pt-2">
-                {/* Hours */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar border-r border-[var(--border-color)] pr-1">
-                    {hours.map(h => (
-                        <button
-                            key={h}
-                            onClick={() => handleCustomTime(h, selectedTime ? parseInt(selectedTime.split(':')[1]) : 0)}
-                            className={`w-full text-center py-1 rounded text-sm hover:bg-[var(--bg-surface)] transition-colors ${selectedTime && parseInt(selectedTime.split(':')[0]) === h ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)] font-bold" : "text-[var(--text-secondary)]"
-                                }`}
-                        >
-                            {h.toString().padStart(2, '0')}
-                        </button>
-                    ))}
+                    <button
+                        type="button"
+                        onClick={() => setPeriod("PM")}
+                        className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-colors ${period === "PM" ? "bg-indigo-100 text-indigo-700" : "text-[var(--text-tertiary)] hover:bg-[var(--bg-surface)]"}`}
+                    >
+                        PM
+                    </button>
                 </div>
 
-                {/* Minutes */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar pl-1">
-                    {hours.map(h => ( // Using hours to generate rows, but we only have 4 mins? maybe just calculate better.
-                        // Actually lets just list 00, 15, 30, 45, and then maybe 5 min increments?
-                        // Let's stick to 5 min increments
-                        Array.from({ length: 12 }).map((_, i) => i * 5).map(m => (
-                            <button
-                                key={m}
-                                onClick={() => handleCustomTime(selectedTime ? parseInt(selectedTime.split(':')[0]) : 12, m)}
-                                className={`w-full text-center py-1 rounded text-sm hover:bg-[var(--bg-surface)] transition-colors ${selectedTime && parseInt(selectedTime.split(':')[1]) === m ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)] font-bold" : "text-[var(--text-secondary)]"
-                                    }`}
-                            >
-                                {m.toString().padStart(2, '0')}
-                            </button>
-                        ))
-                    ))}
-                </div>
             </div>
+
+            {/* Done Button */}
+            <button
+                type="button"
+                onClick={handleSave}
+                className="w-full flex items-center justify-center gap-2 py-1.5 bg-[var(--primary-color)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+                <Check size={14} />
+                Set Time
+            </button>
 
         </div>
     );

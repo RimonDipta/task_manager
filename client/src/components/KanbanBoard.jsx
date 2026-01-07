@@ -152,23 +152,29 @@ const KanbanBoard = ({ filterType = "all", filters }) => {
                                                                 />
                                                             </div>
                                                         </div>
-                                                        <p className="text-[var(--text-primary)] font-medium text-sm leading-snug">{item.title}</p>
-                                                        {/* Auto-Countdown logic */}
-                                                        {item.duration > 0 && item.startTime && !item.completed && (
-                                                            <TimeTracker task={item} />
-                                                        )}
+                                                        {/* Title Row with Timer/Overdue */}
+                                                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                                                            <p className="text-[var(--text-primary)] font-medium text-sm leading-snug">{item.title}</p>
+
+                                                            {!item.completed && (
+                                                                <>
+                                                                    {/* Timer */}
+                                                                    {item.duration > 0 && item.startTime && (
+                                                                        <TimeTracker task={item} />
+                                                                    )}
+                                                                    {/* Overdue */}
+                                                                    {item.dueDate && new Date(item.dueDate) < new Date().setHours(0, 0, 0, 0) && (
+                                                                        <div className="flex items-center gap-1 bg-red-50 px-1.5 py-0.5 rounded text-red-600 border border-red-100 text-[10px]">
+                                                                            <AlertCircle size={10} />
+                                                                            <span>Overdue</span>
+                                                                        </div>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </div>
 
                                                         {item.dueDate && (
-                                                            <div className={`mt-3 flex items-center text-xs ${!item.completed && new Date(item.dueDate) < new Date().setHours(0, 0, 0, 0) ? "text-red-500 font-medium" : "text-slate-400"
-                                                                }`}>
-                                                                {/* Overdue Warning */}
-                                                                {!item.completed && new Date(item.dueDate) < new Date().setHours(0, 0, 0, 0) && (
-                                                                    <div className="flex items-center gap-1 mr-2 bg-red-50 px-1.5 py-0.5 rounded text-red-600 border border-red-100">
-                                                                        <AlertCircle size={10} />
-                                                                        <span>Overdue</span>
-                                                                    </div>
-                                                                )}
-
+                                                            <div className="mt-2 flex items-center text-xs text-slate-400">
                                                                 📅 {new Date(item.dueDate).toLocaleDateString()}
                                                             </div>
                                                         )}

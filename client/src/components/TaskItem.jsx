@@ -1,6 +1,7 @@
 import { useContext, useState, useRef, useEffect } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { TaskContext } from "../context/TaskContext";
+import { useToast } from "../context/ToastContext";
 import useSound from "../hooks/useSound";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Trash2, Circle, Flag, Edit2, Calendar, MoreHorizontal, Tag, X, AlertCircle } from "lucide-react";
@@ -20,8 +21,12 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
   const dateRef = useRef(null);
   const moreRef = useRef(null);
 
+  const { showToast } = useToast();
   const handleToggleComplete = () => {
-    if (!task.completed) playSound("success");
+    if (!task.completed) {
+      playSound("success");
+      showToast(`${task.title} marked as done`, "success");
+    }
     handleUpdate(task._id, { completed: !task.completed });
   };
 
@@ -66,11 +71,13 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
       {/* Content */}
       <div className="flex-1 min-w-0 space-y-1.5 cursor-pointer" onClick={() => openTaskModal && openTaskModal(task)}>
 
-        {/* Title */}
-        <div className="flex items-center gap-2">
+        {/* Title & Timer */}
+        <div className="flex flex-wrap items-center gap-2">
           <h3 className={`text-base font-semibold leading-tight text-[var(--text-primary)] ${task.completed ? "line-through text-[var(--text-tertiary)]" : ""}`}>
             {task.title}
           </h3>
+
+          {/* Priority Flag */}
           {task.priority && task.priority !== 'p4' && (
             <Flag size={14} className={
               task.priority === 'p1' ? "fill-red-500 text-red-600" :
@@ -79,6 +86,27 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
                     "text-[var(--text-tertiary)]"
             } />
           )}
+
+          {/* Timer / Overdue (Right of Title) */}
+          {!task.completed && (
+            <>
+              {/* Timer if running */}
+              {task.duration > 0 && task.startTime && (
+                <div className="flex items-center">
+                  <TimeTracker task={task} />
+                </div>
+              )}
+
+              {/* Overdue Warning */}
+              {task.dueDate && new Date(task.dueDate) < new Date().setHours(0, 0, 0, 0) && (
+                <div className="flex items-center gap-1 text-red-500 bg-red-50 px-1.5 py-0.5 rounded text-[10px] font-medium border border-red-100">
+                  <AlertCircle size={10} />
+                  <span>Overdue</span>
+                </div>
+              )}
+            </>
+          )}
+
         </div>
 
         {/* Description */}
@@ -88,21 +116,12 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
           </p>
         )}
 
-        {/* Auto-Countdown logic */}
-        {task.duration > 0 && task.startTime && !task.completed && (
-          <div className="mt-1">
-            <TimeTracker task={task} />
-          </div>
-        )}
-
         {/* Labels & Meta */}
         <div className="flex items-center gap-3 pt-1 flex-wrap">
 
-          {/* Due Date */}
+          {/* Due Date (Just Date) */}
           {task.dueDate && (
-            <div className={`flex items-center gap-1 text-xs ${new Date(task.dueDate) < new Date().setHours(0, 0, 0, 0) && !task.completed ? "text-red-500 font-medium" : "text-[var(--text-tertiary)]"
-              }`}>
-              {new Date(task.dueDate) < new Date().setHours(0, 0, 0, 0) && !task.completed && <AlertCircle size={12} />}
+            <div className={`flex items-center gap-1 text-xs text-[var(--text-tertiary)]`}>
               <Calendar size={12} />
               <span>{new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
             </div>

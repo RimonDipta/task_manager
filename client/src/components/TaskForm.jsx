@@ -209,11 +209,13 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
               )}
             </div>
             {activePopover === "date" && (
-              <DatePopover
-                selectedDate={date}
-                onSelect={(d) => { setDate(d); setActivePopover(null); }}
-                onClose={() => setActivePopover(null)}
-              />
+              <div className="absolute left-full top-0 ml-2 z-50">
+                <DatePopover
+                  selectedDate={date}
+                  onSelect={(d) => { setDate(d); setActivePopover(null); }}
+                  onClose={() => setActivePopover(null)}
+                />
+              </div>
             )}
           </div>
 
