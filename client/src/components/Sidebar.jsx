@@ -48,13 +48,13 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal, onMo
             className={`${isCollapsed ? "w-20" : "w-64"} bg-[var(--bg-sidebar)] h-screen border-r border-[var(--border-color)] flex flex-col fixed left-0 top-0 z-10 transition-all duration-300`}
         >
             {/* Header */}
-            <div className="p-4 flex items-center justify-between h-16 border-b border-[var(--border-color)]">
-                <h1 className="text-xl font-bold text-[var(--primary-color)] tracking-tight flex items-center gap-2 truncate">
-                    <Zap className="w-6 h-6" />
-                    Doora
-                </h1>
-                )}
-                {isCollapsed && (
+            <div className="p-4 flex items-center justify-between h-16 border-b border-[var(--border-color)] shrink-0">
+                {!isCollapsed ? (
+                    <h1 className="text-xl font-bold text-[var(--primary-color)] tracking-tight flex items-center gap-2 truncate">
+                        <Zap className="w-6 h-6" />
+                        Doora
+                    </h1>
+                ) : (
                     <div className="w-full flex justify-center">
                         <Zap className="w-8 h-8 text-[var(--primary-color)]" />
                     </div>
@@ -69,7 +69,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal, onMo
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 px-3 py-6 space-y-2">
+            <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto custom-scrollbar">
 
                 {/* Add Task Shortcut */}
                 <button
@@ -151,7 +151,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal, onMo
             </nav>
 
             {/* User Profile & Dropdown */}
-            <div className="p-3 border-t border-[var(--border-color)]" ref={dropdownRef}>
+            <div className="p-3 border-t border-[var(--border-color)] shrink-0" ref={dropdownRef}>
                 <div className="relative">
 
                     {/* Profile Button */}
