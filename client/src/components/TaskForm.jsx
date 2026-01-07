@@ -16,7 +16,6 @@ import { format, isToday, isTomorrow, isValid } from "date-fns";
 import DatePopover from "./DatePopover";
 import PriorityLabelPopover from "./PriorityLabelPopover";
 import RepeatPopover from "./RepeatPopover";
-import RepeatPopover from "./RepeatPopover";
 import CustomRepeatModal from "./CustomRepeatModal";
 import TimePopover from "./TimePopover";
 
