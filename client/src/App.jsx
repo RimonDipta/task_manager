@@ -13,11 +13,11 @@ import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./components/Layout";
 import { useEffect } from "react";
 
-import LandingPage from "./pages/LandingPage"; // Import LandingPage
-import HomeView from "./pages/HomeView"; // Import HomeView
+import LandingPage from "./pages/LandingPage";
+import HomeView from "./pages/HomeView";
+import PlaceholderPage from "./pages/PlaceholderPage";
 
 function App() {
-
   // Global Keyboard Shortcuts
   useEffect(() => {
     // ... code ...
@@ -35,6 +35,10 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/verify-email/:token" element={<VerifyEmail />} />
                 <Route path="/verify-otp" element={<VerifyOtp />} />
+
+                {/* Demo Pages Route */}
+                <Route path="/pages/:slug" element={<PlaceholderPage />} />
+
                 <Route element={<Layout />}>
                   <Route
                     path="/dashboard"
