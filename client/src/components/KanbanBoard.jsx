@@ -154,8 +154,8 @@ const KanbanBoard = ({ filterType = "all", filters }) => {
                                                         </div>
                                                         <p className="text-[var(--text-primary)] font-medium text-sm leading-snug">{item.title}</p>
                                                         {/* Auto-Countdown logic */}
-                                                        {task.duration > 0 && task.startTime && !task.completed && (
-                                                            <TimeTracker task={task} />
+                                                        {item.duration > 0 && item.startTime && !item.completed && (
+                                                            <TimeTracker task={item} />
                                                         )}
 
                                                         {item.dueDate && (
