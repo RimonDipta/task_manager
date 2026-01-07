@@ -17,6 +17,15 @@ const KanbanBoard = ({ filterType = "all", filters }) => {
             // Apply Global Filters First
             const filteredTasks = tasks.filter(task => {
                 // 1. Date Logic
+                if (filterType === "all") {
+                    // Show everything (that isn't deleted). 
+                    // No date filtering applied.
+
+                    // But typically we might hide Completed items from ToDo/Doing columns?
+                    // Kanban usually moves them to Done. So we keep them.
+                    return true;
+                }
+
                 if (filterType === "today") {
                     if (!task.dueDate) return false;
                     const date = new Date(task.dueDate);

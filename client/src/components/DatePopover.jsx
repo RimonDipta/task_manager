@@ -67,7 +67,7 @@ const DatePopover = ({ selectedDate, onSelect, onClose }) => {
     };
 
     return (
-        <div className="absolute top-10 left-0 z-50 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-xl w-[280px] p-2 animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute top-10 left-0 sm:left-auto sm:right-auto z-50 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-xl w-[280px] p-2 animate-in fade-in zoom-in-95 duration-200 xs:max-w-[90vw] xs:left-1/2 xs:-translate-x-1/2 xs:top-12">
             {/* Search/Input (Optional - skipping for now as per req "shortcuts + calendar") */}
 
             {/* Shortcuts */}

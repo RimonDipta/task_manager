@@ -28,7 +28,7 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
   const [priority, setPriority] = useState("p4");
   const [date, setDate] = useState(null); // Default Today
   const [time, setTime] = useState("");
-  const [duration, setDuration] = useState("");
+  const [duration, setDuration] = useState({ h: 0, m: 0 });
   const [repeat, setRepeat] = useState(null); // { type, interval, end }
   const [tags, setTags] = useState([]);
 
@@ -58,9 +58,11 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
         setTime(format(reminderDate, "HH:mm"));
         setShowTimeInputs(true);
       }
-      if (task.duration) { // Assuming duration might be added to model or implied
-        setDuration(task.duration || "");
-        if (task.duration) setShowTimeInputs(true);
+      if (task.duration) {
+        const h = Math.floor(task.duration / 60);
+        const m = task.duration % 60;
+        setDuration({ h, m });
+        setShowTimeInputs(true);
       }
     } else {
       // Reset form for addition (Layout handles unmount/remount usually, but safe to reset if modal stays mounted)
@@ -93,22 +95,44 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
     if (!title.trim()) return;
 
     // Construct Payload
+    // Construct Payload
     let reminderDate = null;
-    if (date && time) {
-      // combine date + time
-      const [hours, minutes] = time.split(':');
-      reminderDate = new Date(date);
-      reminderDate.setHours(parseInt(hours), parseInt(minutes));
+    let taskStatus = task?.status || (priority === 'all' ? 'todo' : 'todo'); // Default
+    let startTimeValue = undefined;
+
+    if (showTimeInputs) {
+      if (date && time) {
+        // combine date + time
+        const [hours, minutes] = time.split(':');
+        reminderDate = new Date(date);
+        reminderDate.setHours(parseInt(hours), parseInt(minutes));
+        // Scheduled for future?
+      } else if (date && !time) {
+        // "No Time" selected -> Start IMMEDIATELY
+        taskStatus = 'doing';
+        startTimeValue = new Date(); // Start now
+        // If date is different than today, maybe we shouldn't start? 
+        // User requirement: "If no time is slected duration time should start as soon as user add the tasks"
+        // We assume this applies if the Date is Today or not set?
+        // If Date is tomorrow, and "No Time", does it start now?
+        // Let's assume yes, or maybe set start time to 00:00 of that day?
+        // "Duration time should start as soon as user add the tasks" -> Implies immediate start.
+      }
     }
+
+    const totalDurationMinutes = (duration.h || 0) * 60 + (duration.m || 0);
 
     const taskData = {
       title,
-      description: duration ? (description || "") + `\n[Duration: ${duration}]` : description,
+      description,
       priority,
       dueDate: date,
       tags,
       recurrence: repeat,
-      reminder: reminderDate
+      reminder: reminderDate,
+      duration: totalDurationMinutes,
+      startTime: startTimeValue,
+      status: taskStatus
     };
 
     if (task) {
@@ -283,7 +307,10 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
             {!showTimeInputs && (
               <button
                 type="button"
-                onClick={() => setShowTimeInputs(true)}
+                onClick={() => {
+                  setShowTimeInputs(true);
+                  setTime(format(new Date(), "HH:mm"));
+                }}
                 className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] transition-colors"
                 title="Add Time"
               >
@@ -316,40 +343,80 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
 
         {/* Time Inputs (Conditional) */}
         {showTimeInputs && (
-          <div className="flex items-center justify-between bg-[var(--bg-card)] p-2.5 rounded-xl animate-in fade-in slide-in-from-top-2 border border-[var(--border-color)] shadow-sm mt-2">
-            <div className="flex gap-4 items-center">
+          <div className="flex flex-col gap-3 bg-[var(--bg-card)] p-3 rounded-xl animate-in fade-in slide-in-from-top-2 border border-[var(--border-color)] shadow-sm mt-2">
+
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Time & Duration</span>
+              <button
+                type="button"
+                onClick={() => { setShowTimeInputs(false); setTime(""); setDuration({ h: 0, m: 0 }); }}
+                className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)] rounded-full transition-colors"
+              >
+                <X size={14} />
+              </button>
+            </div>
+
+            <div className="flex flex-wrap gap-4 items-end">
 
               {/* Time Input */}
-              <div className="flex items-center gap-2 bg-[var(--bg-surface)] px-2 py-1.5 rounded-lg border border-[var(--border-color)] focus-within:ring-1 focus-within:ring-[var(--primary-color)] transition-all">
-                <AlarmClock size={15} className="text-[var(--primary-color)]" />
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="bg-transparent text-sm font-medium text-[var(--text-primary)] outline-none w-[100px] cursor-pointer appearance-none" style={{ colorScheme: 'var(--color-scheme)' }}
-                />
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-[var(--text-secondary)]">Start Time</label>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 bg-[var(--bg-surface)] px-2 py-1.5 rounded-lg border border-[var(--border-color)] focus-within:ring-1 focus-within:ring-[var(--primary-color)] transition-all">
+                    <AlarmClock size={15} className="text-[var(--primary-color)]" />
+                    <input
+                      type="time"
+                      value={time}
+                      onChange={(e) => setTime(e.target.value)}
+                      className="bg-transparent text-sm font-medium text-[var(--text-primary)] outline-none w-[100px] cursor-pointer appearance-none" style={{ colorScheme: 'var(--color-scheme)' }}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setTime("")}
+                    className={`text-xs px-2 py-1 rounded border transition-colors ${!time ? "bg-indigo-50 border-indigo-200 text-indigo-700" : "bg-[var(--bg-surface)] border-[var(--border-color)] text-[var(--text-secondary)]"}`}
+                  >
+                    No Time
+                  </button>
+                </div>
               </div>
 
               {/* Duration Input */}
-              <div className="flex items-center gap-2 bg-[var(--bg-surface)] px-2 py-1.5 rounded-lg border border-[var(--border-color)] focus-within:ring-1 focus-within:ring-[var(--primary-color)] transition-all">
-                <span className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wider">Duration</span>
-                <input
-                  type="text"
-                  placeholder="30m"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="bg-transparent text-sm font-medium text-[var(--text-primary)] outline-none w-14 placeholder:text-[var(--text-tertiary)]"
-                />
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-[var(--text-secondary)]">Duration</label>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center bg-[var(--bg-surface)] rounded-lg border border-[var(--border-color)] overflow-hidden">
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      value={duration.h || ""}
+                      onChange={(e) => setDuration(prev => ({ ...prev, h: parseInt(e.target.value) || 0 }))}
+                      className="w-12 px-2 py-1.5 bg-transparent text-sm text-[var(--text-primary)] outline-none text-center border-r border-[var(--border-color)]"
+                    />
+                    <span className="px-2 text-xs text-[var(--text-tertiary)] bg-[var(--bg-card)]">hr</span>
+                  </div>
+                  <div className="flex items-center bg-[var(--bg-surface)] rounded-lg border border-[var(--border-color)] overflow-hidden">
+                    <input
+                      type="number"
+                      min="0"
+                      max="59"
+                      placeholder="0"
+                      value={duration.m || ""}
+                      onChange={(e) => setDuration(prev => ({ ...prev, m: parseInt(e.target.value) || 0 }))}
+                      className="w-12 px-2 py-1.5 bg-transparent text-sm text-[var(--text-primary)] outline-none text-center border-r border-[var(--border-color)]"
+                    />
+                    <span className="px-2 text-xs text-[var(--text-tertiary)] bg-[var(--bg-card)]">min</span>
+                  </div>
+                </div>
               </div>
 
             </div>
-            <button
-              type="button"
-              onClick={() => { setShowTimeInputs(false); setTime(""); setDuration(""); }}
-              className="p-1.5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)] rounded-full transition-colors"
-            >
-              <X size={15} />
-            </button>
+
+            <p className="text-[10px] text-[var(--text-tertiary)] mt-1">
+              {!time ? "Starts immediately." : "Scheduled to start at specified time."}
+            </p>
+
           </div>
         )}
 

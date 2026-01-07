@@ -32,14 +32,20 @@ const Dashboard = () => {
       ? "upcoming"
       : isCompletedView
         ? "completed"
-        : "today"; // Default
+        : isKanbanRoute
+          ? "all" // Kanban shows everything by default per user request
+          : "today"; // Default for root/dashboard
 
   // Dynamic Title
   let pageTitle = "Dashboard - Doora";
   if (isTodayView) pageTitle = "Today - Doora";
   if (isUpcomingView) pageTitle = "Upcoming - Doora";
   if (isCompletedView) pageTitle = "Completed - Doora";
-  if (isKanbanRoute) pageTitle = "Kanban - Doora";
+  if (isKanbanRoute) {
+    pageTitle = "Kanban - Doora";
+    // We don't overwrite filterType here because it's derived const.
+    // We'll handle it in the derivation logic.
+  }
   if (isAnalyticsView) pageTitle = "Analytics - Doora";
 
   usePageTitle(pageTitle);

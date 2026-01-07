@@ -21,6 +21,9 @@ const taskSchema = new mongoose.Schema(
     reminder: { type: Date },
     reminderSent: { type: Boolean, default: false },
     timeSpent: { type: Number, default: 0 }, // in minutes
+    duration: { type: Number, default: 0 }, // planned duration in minutes
+    startTime: { type: Date }, // When the task/timer started
+    displayTime: { type: String }, // User formatted time string if needed, or rely on reminder
     tags: { type: [String], default: [] },
   },
   { timestamps: true }
