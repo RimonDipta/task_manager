@@ -10,6 +10,7 @@ const LandingPage = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState('pro');
 
     // Redirect if already logged in
     useEffect(() => {
@@ -364,7 +365,13 @@ const LandingPage = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {/* Free Tier */}
-                        <div className="bg-[#1e293b]/40 border border-slate-700 rounded-3xl p-8 hover:border-slate-500 transition-colors">
+                        <div
+                            onClick={() => setSelectedPlan('starter')}
+                            className={`cursor-pointer rounded-3xl p-8 transition-all duration-300 ${selectedPlan === 'starter'
+                                ? 'bg-[#1e293b] border-2 border-indigo-500 shadow-2xl shadow-indigo-500/10 scale-105 z-10'
+                                : 'bg-[#1e293b]/40 border border-slate-700 hover:border-slate-500'
+                                }`}
+                        >
                             <div className="text-xl font-bold mb-4 text-slate-300">Starter</div>
                             <div className="text-4xl font-bold mb-6">$0</div>
                             <ul className="space-y-4 mb-8 text-slate-400 text-sm">
@@ -372,13 +379,22 @@ const LandingPage = () => {
                                 <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400" /> Basic Analytics</li>
                                 <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400" /> 1 User</li>
                             </ul>
-                            <Link to="/register" className="block w-full py-3 rounded-full border border-slate-600 text-center font-medium hover:bg-slate-800 transition-colors">
+                            <Link to="/register" className={`block w-full py-3 rounded-full border text-center font-medium transition-colors ${selectedPlan === 'starter'
+                                ? 'bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-500'
+                                : 'border-slate-600 hover:bg-slate-800'
+                                }`}>
                                 Get Started
                             </Link>
                         </div>
 
                         {/* Pro Tier */}
-                        <div className="bg-[#1e293b] border border-indigo-500 rounded-3xl p-8 relative shadow-2xl shadow-indigo-500/10 scale-105">
+                        <div
+                            onClick={() => setSelectedPlan('pro')}
+                            className={`cursor-pointer rounded-3xl p-8 transition-all duration-300 relative ${selectedPlan === 'pro'
+                                ? 'bg-[#1e293b] border-2 border-indigo-500 shadow-2xl shadow-indigo-500/10 scale-105 z-10'
+                                : 'bg-[#1e293b]/40 border border-slate-700 hover:border-slate-500'
+                                }`}
+                        >
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-b-lg">
                                 MOST POPULAR
                             </div>
@@ -390,13 +406,22 @@ const LandingPage = () => {
                                 <li className="flex items-center gap-2"><CheckCircle size={16} className="text-indigo-400" /> Up to 5 Team Members</li>
                                 <li className="flex items-center gap-2"><CheckCircle size={16} className="text-indigo-400" /> Custom Workflows</li>
                             </ul>
-                            <Link to="/register" className="block w-full py-3 rounded-full bg-indigo-600 text-white text-center font-bold hover:bg-indigo-500 transition-colors shadow-lg">
+                            <Link to="/register" className={`block w-full py-3 rounded-full border text-center font-bold transition-colors shadow-lg ${selectedPlan === 'pro'
+                                ? 'bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-500'
+                                : 'border-slate-600 hover:bg-slate-800'
+                                }`}>
                                 Start 14-day Free Trial
                             </Link>
                         </div>
 
                         {/* Team Tier */}
-                        <div className="bg-[#1e293b]/40 border border-slate-700 rounded-3xl p-8 hover:border-slate-500 transition-colors">
+                        <div
+                            onClick={() => setSelectedPlan('enterprise')}
+                            className={`cursor-pointer rounded-3xl p-8 transition-all duration-300 ${selectedPlan === 'enterprise'
+                                ? 'bg-[#1e293b] border-2 border-indigo-500 shadow-2xl shadow-indigo-500/10 scale-105 z-10'
+                                : 'bg-[#1e293b]/40 border border-slate-700 hover:border-slate-500'
+                                }`}
+                        >
                             <div className="text-xl font-bold mb-4 text-slate-300">Enterprise</div>
                             <div className="text-4xl font-bold mb-6">$49 <span className="text-lg text-slate-500 font-normal">/mo</span></div>
                             <ul className="space-y-4 mb-8 text-slate-400 text-sm">
@@ -405,7 +430,10 @@ const LandingPage = () => {
                                 <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400" /> 24/7 Priority Support</li>
                                 <li className="flex items-center gap-2"><CheckCircle size={16} className="text-green-400" /> Custom Integrations</li>
                             </ul>
-                            <Link to="/register" className="block w-full py-3 rounded-full border border-slate-600 text-center font-medium hover:bg-slate-800 transition-colors">
+                            <Link to="/register" className={`block w-full py-3 rounded-full border text-center font-medium transition-colors ${selectedPlan === 'enterprise'
+                                ? 'bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-500'
+                                : 'border-slate-600 hover:bg-slate-800'
+                                }`}>
                                 Contact Sales
                             </Link>
                         </div>
@@ -447,11 +475,11 @@ const LandingPage = () => {
                     <div>
                         <h4 className="font-bold text-white mb-6">Product</h4>
                         <ul className="space-y-4 text-slate-400">
-                            <li><a href="#" className="hover:text-indigo-400 transition-colors">Features</a></li>
-                            <li><a href="#" className="hover:text-indigo-400 transition-colors">Integrations</a></li>
-                            <li><a href="#" className="hover:text-indigo-400 transition-colors">Pricing</a></li>
-                            <li><a href="#" className="hover:text-indigo-400 transition-colors">Changelog</a></li>
-                            <li><a href="#" className="hover:text-indigo-400 transition-colors">Docs</a></li>
+                            <li><Link to="/pages/features" className="hover:text-indigo-400 transition-colors">Features</Link></li>
+                            <li><Link to="/pages/integrations" className="hover:text-indigo-400 transition-colors">Integrations</Link></li>
+                            <li><Link to="/pages/pricing" className="hover:text-indigo-400 transition-colors">Pricing</Link></li>
+                            <li><Link to="/pages/changelog" className="hover:text-indigo-400 transition-colors">Changelog</Link></li>
+                            <li><Link to="/pages/docs" className="hover:text-indigo-400 transition-colors">Docs</Link></li>
                         </ul>
                     </div>
 
@@ -459,11 +487,11 @@ const LandingPage = () => {
                     <div>
                         <h4 className="font-bold text-white mb-6">Company</h4>
                         <ul className="space-y-4 text-slate-400">
-                            <li><a href="#" className="hover:text-indigo-400 transition-colors">About Us</a></li>
-                            <li><a href="#" className="hover:text-indigo-400 transition-colors">Careers</a></li>
-                            <li><a href="#" className="hover:text-indigo-400 transition-colors">Blog</a></li>
-                            <li><a href="#" className="hover:text-indigo-400 transition-colors">Contact</a></li>
-                            <li><a href="#" className="hover:text-indigo-400 transition-colors">Partners</a></li>
+                            <li><Link to="/pages/about-us" className="hover:text-indigo-400 transition-colors">About Us</Link></li>
+                            <li><Link to="/pages/careers" className="hover:text-indigo-400 transition-colors">Careers</Link></li>
+                            <li><Link to="/pages/blog" className="hover:text-indigo-400 transition-colors">Blog</Link></li>
+                            <li><Link to="/pages/contact" className="hover:text-indigo-400 transition-colors">Contact</Link></li>
+                            <li><Link to="/pages/partners" className="hover:text-indigo-400 transition-colors">Partners</Link></li>
                         </ul>
                     </div>
 
@@ -493,9 +521,9 @@ const LandingPage = () => {
                 <div className="max-w-6xl mx-auto px-4 mt-20 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between text-slate-500 text-xs">
                     <p>&copy; {new Date().getFullYear()} Doora Inc. All rights reserved.</p>
                     <div className="flex gap-6 mt-4 md:mt-0">
-                        <a href="#" className="hover:text-slate-300 transition-colors">Privacy Policy</a>
-                        <a href="#" className="hover:text-slate-300 transition-colors">Terms of Service</a>
-                        <a href="#" className="hover:text-slate-300 transition-colors">Cookie Policy</a>
+                        <Link to="/pages/privacy-policy" className="hover:text-slate-300 transition-colors">Privacy Policy</Link>
+                        <Link to="/pages/terms-of-service" className="hover:text-slate-300 transition-colors">Terms of Service</Link>
+                        <Link to="/pages/cookie-policy" className="hover:text-slate-300 transition-colors">Cookie Policy</Link>
                     </div>
                 </div>
             </footer>
