@@ -29,7 +29,7 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
   const [priority, setPriority] = useState("p4");
   const [date, setDate] = useState(new Date()); // Default Today
   const [time, setTime] = useState("");
-  const [duration, setDuration] = useState({ val: "", unit: "minutes" });
+  const [duration, setDuration] = useState({ h: 0, m: 0 });
   const [repeat, setRepeat] = useState(null); // { type, interval, end }
   const [tags, setTags] = useState([]);
 
@@ -42,6 +42,7 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
   const dateRef = useRef(null);
   const priorityRef = useRef(null);
   const repeatRef = useRef(null);
+  const timeRef = useRef(null);
 
   // Populate form if editing
   useEffect(() => {
@@ -86,9 +87,9 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
       if (repeatRef.current && !repeatRef.current.contains(event.target)) {
         if (activePopover === 'repeat') setActivePopover(null);
       }
-      // Note: 'time' popover doesn't have a persistent ref in parent easily because it's conditional. 
-      // We rely on the TimePopover being closed by selecting or clicking the 'clear'/X.
-      // But standard click outside is good. We can add a ref to the container of the time input.
+      if (timeRef.current && !timeRef.current.contains(event.target)) {
+        if (activePopover === 'time') setActivePopover(null);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -111,21 +112,17 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
         reminderDate = new Date(date);
         reminderDate.setHours(parseInt(hours), parseInt(minutes));
         // Scheduled for future?
-      } else if (date && !time) {
-        // "No Time" selected -> Start IMMEDIATELY
-        taskStatus = 'doing';
-        startTimeValue = new Date(); // Start now
-        // If date is different than today, maybe we shouldn't start? 
-        // User requirement: "If no time is slected duration time should start as soon as user add the tasks"
-        // We assume this applies if the Date is Today or not set?
-        // If Date is tomorrow, and "No Time", does it start now?
-        // Let's assume yes, or maybe set start time to 00:00 of that day?
-        // "Duration time should start as soon as user add the tasks" -> Implies immediate start.
       }
     }
 
-    const durationVal = parseInt(duration.val) || 0;
-    const totalDurationMinutes = duration.unit === "hours" ? durationVal * 60 : durationVal;
+    const totalDurationMinutes = (parseInt(duration.h) || 0) * 60 + (parseInt(duration.m) || 0);
+
+    // If "No Time" (Time is empty) and we have a duration, start immediately?
+    // User logic: "If no time is slected duration time should start as soon as user add the tasks"
+    if (showTimeInputs && !time && totalDurationMinutes > 0) {
+      taskStatus = 'doing';
+      startTimeValue = new Date();
+    }
 
     const taskData = {
       title,
@@ -369,7 +366,7 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
             <div className="flex flex-wrap gap-4 items-end">
 
               {/* Time Input */}
-              <div className="flex flex-col gap-1 relative">
+              <div className="flex flex-col gap-1 relative" ref={timeRef}>
                 <label className="text-xs text-[var(--text-secondary)]">Start Time</label>
                 <div className="flex items-center gap-2">
                   <div
@@ -386,7 +383,7 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
                     <div className="absolute top-full mt-2 left-0 z-[70]">
                       <TimePopover
                         selectedTime={time}
-                        onSelect={(t) => { setTime(t); setActivePopover(null); }}
+                        onSelect={(t) => { setTime(t); }}
                         onClose={() => setActivePopover(null)}
                         onClear={() => { setTime(""); setActivePopover(null); }}
                       />
