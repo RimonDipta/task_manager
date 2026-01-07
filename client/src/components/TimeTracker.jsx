@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Timer, Hourglass } from 'lucide-react';
+import { useToast } from "../context/ToastContext";
 
 const TimeTracker = ({ task }) => {
     const [timeLeft, setTimeLeft] = useState("");
     const [isOver, setIsOver] = useState(false);
+    const [notified, setNotified] = useState(false);
+    const { showToast } = useToast();
 
     useEffect(() => {
         if (!task.startTime || !task.duration) return;
@@ -21,6 +24,14 @@ const TimeTracker = ({ task }) => {
                 return;
             }
 
+            // Notification Logic: Warn if <= 5 minutes left and not yet notified
+            // Only if total duration was > 5 mins (to avoid immediate warning on short tasks)
+            if (task.duration > 5 && diff <= 5 * 60 * 1000 && !notified) {
+                showToast(`⏳ Task "${task.title}" has less than 5 minutes remaining!`, "warning");
+                setNotified(true);
+                // Play sound if possible? 
+            }
+
             const hours = Math.floor(diff / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
@@ -36,7 +47,7 @@ const TimeTracker = ({ task }) => {
         calculateTime(); // Initial
 
         return () => clearInterval(timer);
-    }, [task]);
+    }, [task, notified]);
 
     // Helper to format minutes to "1h 30m"
     const formatDuration = (mins) => {

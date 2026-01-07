@@ -119,11 +119,22 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
         {/* Labels & Meta */}
         <div className="flex items-center gap-3 pt-1 flex-wrap">
 
-          {/* Due Date (Just Date) */}
+          {/* Due Date (Date + Time) */}
           {task.dueDate && (
-            <div className={`flex items-center gap-1 text-xs text-[var(--text-tertiary)]`}>
-              <Calendar size={12} />
-              <span>{new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+            <div className={`flex items-center gap-1 text-xs font-medium ${task.priority === 'p1' ? "text-red-600" :
+                task.priority === 'p2' ? "text-amber-600" :
+                  task.priority === 'p3' ? "text-green-600" :
+                    "text-[var(--text-tertiary)]"
+              }`}>
+              <Calendar size={12} className={
+                task.priority === 'p1' ? "text-red-500" :
+                  task.priority === 'p2' ? "text-amber-500" :
+                    task.priority === 'p3' ? "text-green-500" :
+                      "text-[var(--text-tertiary)]"
+              } />
+              <span>
+                {new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </span>
             </div>
           )}
 

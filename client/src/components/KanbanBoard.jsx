@@ -2,7 +2,7 @@ import { useContext, useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { TaskContext } from "../context/TaskContext";
 import { isToday, isFuture, isValid } from "date-fns";
-import { Flag, AlertCircle } from "lucide-react";
+import { Flag, AlertCircle, Calendar } from "lucide-react";
 import TimeTracker from "./TimeTracker";
 
 const KanbanBoard = ({ filterType = "all", filters }) => {
@@ -174,8 +174,18 @@ const KanbanBoard = ({ filterType = "all", filters }) => {
                                                         </div>
 
                                                         {item.dueDate && (
-                                                            <div className="mt-2 flex items-center text-xs text-slate-400">
-                                                                📅 {new Date(item.dueDate).toLocaleDateString()}
+                                                            <div className={`mt-2 flex items-center gap-1 text-xs font-medium ${item.priority === 'p1' ? "text-red-600" :
+                                                                item.priority === 'p2' ? "text-amber-600" :
+                                                                    item.priority === 'p3' ? "text-green-600" :
+                                                                        "text-slate-400"
+                                                                }`}>
+                                                                <Calendar size={12} className={
+                                                                    item.priority === 'p1' ? "text-red-500" :
+                                                                        item.priority === 'p2' ? "text-amber-500" :
+                                                                            item.priority === 'p3' ? "text-green-500" :
+                                                                                "text-slate-400"
+                                                                } />
+                                                                <span>{new Date(item.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                                                             </div>
                                                         )}
                                                     </div>
