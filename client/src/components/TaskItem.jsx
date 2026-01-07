@@ -7,10 +7,13 @@ import { Check, Trash2, Circle, Flag, Edit2, Calendar, MoreHorizontal, Tag, X } 
 import DatePopover from "./DatePopover";
 import PriorityLabelPopover from "./PriorityLabelPopover";
 
-const TaskItem = ({ task }) => {
-  const { updateTask, removeTask } = useContext(TaskContext);
+const TaskItem = ({ task, onUpdate, onDelete }) => {
+  const { updateTask: contextUpdate, removeTask: contextRemove } = useContext(TaskContext);
   const { openTaskModal } = useOutletContext() || {}; // Access global modal opener
   const playSound = useSound();
+
+  const handleUpdate = onUpdate || contextUpdate;
+  const handleRemove = onDelete || contextRemove;
 
   const [activePopover, setActivePopover] = useState(null); // 'date', 'more'
   const dateRef = useRef(null);
@@ -18,7 +21,7 @@ const TaskItem = ({ task }) => {
 
   const handleToggleComplete = () => {
     if (!task.completed) playSound("success");
-    updateTask(task._id, { completed: !task.completed });
+    handleUpdate(task._id, { completed: !task.completed });
   };
 
   // Click Outside to close popovers
@@ -132,7 +135,7 @@ const TaskItem = ({ task }) => {
               <DatePopover
                 selectedDate={task.dueDate ? new Date(task.dueDate) : null}
                 onSelect={(d) => {
-                  updateTask(task._id, { dueDate: d });
+                  handleUpdate(task._id, { dueDate: d });
                   setActivePopover(null);
                 }}
                 onClose={() => setActivePopover(null)}
@@ -164,7 +167,7 @@ const TaskItem = ({ task }) => {
                       key={p}
                       type="button"
                       onClick={() => {
-                        updateTask(task._id, { priority: p });
+                        handleUpdate(task._id, { priority: p });
                         setActivePopover(null);
                       }}
                       className={`flex-1 p-2 rounded-lg border transition-all flex justify-center items-center ${task.priority === p
@@ -213,7 +216,7 @@ const TaskItem = ({ task }) => {
                         const newTags = currentTags.includes(label)
                           ? currentTags.filter(t => t !== label)
                           : [...currentTags, label];
-                        updateTask(task._id, { tags: newTags });
+                        handleUpdate(task._id, { tags: newTags });
                       }}
                       className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-[var(--bg-surface)] text-sm text-[var(--text-primary)] transition-colors group"
                     >
@@ -230,7 +233,7 @@ const TaskItem = ({ task }) => {
               {/* Delete Option */}
               <button
                 onClick={() => {
-                  removeTask(task._id);
+                  handleRemove(task._id);
                   setActivePopover(null);
                 }}
                 className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 text-red-600 text-sm transition-colors font-medium"

@@ -3,8 +3,10 @@ import { TaskContext } from "../context/TaskContext";
 import TaskItem from "./TaskItem";
 import { isToday, isFuture, parseISO, isValid } from "date-fns";
 
-const TaskList = ({ filterType = "all", filters, layout = "list", limit }) => {
-  const { tasks, loading, error } = useContext(TaskContext);
+const TaskList = ({ filterType = "all", filters, layout = "list", limit, tasks: propTasks, onUpdate, onDelete }) => {
+  const { tasks: contextTasks, loading, error } = useContext(TaskContext);
+
+  const tasks = propTasks || contextTasks;
 
   // NOTE: 'filters' now comes from props, not local state.
   // We rely on the parent (Dashboard) to manage filters.
@@ -119,7 +121,7 @@ const TaskList = ({ filterType = "all", filters, layout = "list", limit }) => {
           : "space-y-4"
         }>
           {displayTasks.map((task) => (
-            <TaskItem key={task._id} task={task} />
+            <TaskItem key={task._id} task={task} onUpdate={onUpdate} onDelete={onDelete} />
           ))}
         </div>
       )}

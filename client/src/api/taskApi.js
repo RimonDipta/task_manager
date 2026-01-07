@@ -7,7 +7,8 @@ const authConfig = (token) => ({
 });
 
 export const getTasks = (token, params) =>
-  api.get("/tasks", authConfig(token), {
+  api.get("/tasks", {
+    ...authConfig(token),
     params,
   });
 

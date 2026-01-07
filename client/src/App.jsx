@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import VerifyEmail from "./pages/VerifyEmail";
 import VerifyOtp from "./pages/VerifyOtp";
+import Tasks from "./pages/Tasks";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./components/Layout";
@@ -96,6 +97,14 @@ function App() {
                     element={
                       <PrivateRoute>
                         <Dashboard />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/tasks"
+                    element={
+                      <PrivateRoute>
+                        <Tasks />
                       </PrivateRoute>
                     }
                   />

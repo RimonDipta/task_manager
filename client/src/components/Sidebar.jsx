@@ -11,6 +11,7 @@ import {
     ChevronRight,
     PlusCircle,
     Zap,
+    List,
     Kanban,
     BarChart3,
     Calendar,
@@ -95,6 +96,19 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal, onMo
                 >
                     <Home size={20} className={isActive("/dashboard/home") ? "text-[var(--primary-color)]" : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"} />
                     {!isCollapsed && <span className="text-sm font-medium">Home</span>}
+                </Link>
+
+                <Link
+                    to="/tasks"
+                    onClick={() => onMobileClose && onMobileClose()}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group relative ${isActive("/tasks")
+                        ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+                        } ${isCollapsed ? "justify-center" : ""}`}
+                    title={isCollapsed ? "All Tasks" : ""}
+                >
+                    <List size={20} className={isActive("/tasks") ? "text-[var(--primary-color)]" : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"} />
+                    {!isCollapsed && <span className="text-sm font-medium">All Tasks</span>}
                 </Link>
 
                 <Link

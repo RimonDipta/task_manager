@@ -18,10 +18,14 @@ export const TaskProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchTasks();
-  }, [page, search]);
+    if (user) {
+      fetchTasks();
+    }
+  }, [page, search, user]);
 
   const fetchTasks = async () => {
+    if (!user) return;
+
     try {
       setLoading(true);
       const res = await taskApi.getTasks(user.token, {
