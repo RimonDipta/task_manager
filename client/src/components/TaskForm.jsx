@@ -185,7 +185,7 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
         </div>
 
         {/* Controls Row */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[var(--border-color)]">
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[var(--border-color)] relative">
 
           {/* Date Pill */}
           <div className="relative group" ref={dateRef}>
@@ -209,7 +209,7 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
               )}
             </div>
             {activePopover === "date" && (
-              <div className="absolute left-full top-0 ml-2 z-50">
+              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50">
                 <DatePopover
                   selectedDate={date}
                   onSelect={(d) => { setDate(d); setActivePopover(null); }}
