@@ -7,6 +7,7 @@ export const getTasks = async (req, res) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 5;
     const filter = req.query.filter || "all"; // all, today, upcoming, completed, overdue, top_priorities
+    const search = req.query.search || "";
 
     const query = {
       user: req.user,
@@ -21,26 +22,7 @@ export const getTasks = async (req, res) => {
 
     if (filter === "today") {
       // Today OR Overdue OR No Date (Backlog)
-      query.$or = [
-        { dueDate: { $gte: todayStart, $lte: todayEnd } }, // Today
-        { dueDate: { $lt: todayStart }, completed: false }, // Overdue
-        { dueDate: null }, // Backlog
-        { dueDate: { $exists: false } } // Backlog check
-      ];
-      // Exclude completed unless it was done today?
-      // Usually "Today" view focuses on what needs to be done.
-      // But if I finished it today, it's nice to see.
-      // Let's keep it simple: Show pending + Done *Today*.
-      // Actually simpler logic:
-      // Show (Due Today OR Overdue OR No Date) AND (Pending OR Completed Today)
-      // For now, let's just stick to the $or logic. It might show old completed tasks if they are "Overdue" but completed.
-      // Fix: If completed=true, due date must be today or null?
-      // Let's refine:
-      // (Pending AND (Due <= Today OR Null)) OR (Completed AND DoneAt == Today) -> Too complex for now.
-      // Simplest "Today" View:
-      // 1. Due Today (Any Status)
-      // 2. Overdue (Pending Only)
-      // 3. No Date (Pending Only - backlog usually pending)
+
 
       query.$or = [
         { dueDate: { $gte: todayStart, $lte: todayEnd } },
