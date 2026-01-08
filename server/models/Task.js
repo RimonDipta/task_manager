@@ -3,7 +3,14 @@ import mongoose from "mongoose";
 const taskSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    project: { type: mongoose.Schema.Types.ObjectId, ref: "Project" }, // Reference to Project
     title: String,
+    subtasks: [
+      {
+        title: { type: String, required: true },
+        completed: { type: Boolean, default: false }
+      }
+    ],
     description: String,
     priority: { type: String, enum: ["p1", "p2", "p3", "p4"], default: "p4" },
     dueDate: Date,

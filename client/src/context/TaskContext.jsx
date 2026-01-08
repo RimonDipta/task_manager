@@ -14,6 +14,7 @@ export const TaskProvider = ({ children }) => {
   const [search, setSearch] = useState("");
 
   const [tasks, setTasks] = useState([]);
+  const [projects, setProjects] = useState([]); // Projects State
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -27,9 +28,39 @@ export const TaskProvider = ({ children }) => {
     // Initial load? maybe just let components trigger it.
     // Providing a default load for initial context populate.
     if (user) {
-      // fetchTasks(); // Disable auto-fetch, let Page trigger it with correct filter.
+      fetchProjects(); // Load projects globally
     }
   }, [user]);
+
+  const fetchProjects = async () => {
+    if (!user) return;
+    try {
+      const res = await taskApi.getProjects(user.token);
+      setProjects(res.data);
+    } catch (err) {
+      console.error("Failed to fetch projects");
+    }
+  };
+
+  const addProject = async (projectData) => {
+    try {
+      const res = await taskApi.createProject(projectData, user.token);
+      setProjects([res.data, ...projects]);
+      return res.data;
+    } catch (err) {
+      showToast("Failed to create project");
+      throw err;
+    }
+  };
+
+  const removeProject = async (id) => {
+    try {
+      await taskApi.deleteProject(id, user.token);
+      setProjects(projects.filter(p => p._id !== id));
+    } catch (err) {
+      showToast("Failed to delete project");
+    }
+  };
 
   const fetchTasks = async (customParams = {}) => {
     if (!user) return;
@@ -96,6 +127,10 @@ export const TaskProvider = ({ children }) => {
         updateTask,
         removeTask,
         fetchTasks,
+        projects,
+        fetchProjects,
+        addProject,
+        removeProject
       }}
     >
       {children}

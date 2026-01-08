@@ -8,7 +8,10 @@ import {
   Repeat,
   MoreHorizontal,
   X,
-  AlarmClock
+  AlarmClock,
+  Folder,
+  CheckSquare,
+  Plus
 } from "lucide-react";
 import { format, isToday, isTomorrow, isValid } from "date-fns";
 
@@ -20,7 +23,7 @@ import CustomRepeatModal from "./CustomRepeatModal";
 import TimePopover from "./TimePopover";
 
 const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
-  const { addTask, updateTask } = useContext(TaskContext); // Destructure updateTask
+  const { addTask, updateTask, projects, addProject } = useContext(TaskContext); // Destructure updateTask & Projects
   const playSound = useSound();
 
   // Form State
@@ -32,6 +35,9 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
   const [duration, setDuration] = useState({ h: 0, m: 0 });
   const [repeat, setRepeat] = useState(null); // { type, interval, end }
   const [tags, setTags] = useState([]);
+  const [projectId, setProjectId] = useState(""); // Selected Project ID
+  const [subtasks, setSubtasks] = useState([]); // [{ title, completed }]
+  const [newSubtask, setNewSubtask] = useState(""); // Input for new subtask
 
   // UI State
   const [activePopover, setActivePopover] = useState(null); // 'date', 'priority', 'repeat', 'customRepeat'
@@ -53,6 +59,8 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
       setTags(task.tags || []);
       setDate(task.dueDate ? new Date(task.dueDate) : null);
       setRepeat(task.recurrence || null);
+      setProjectId(task.project?._id || task.project || ""); // Handle populated or raw ID
+      setSubtasks(task.subtasks || []);
 
       // Handle Time/Duration if specific fields (assuming reminder holds time)
       if (task.reminder) {
@@ -134,7 +142,9 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
       reminder: reminderDate,
       duration: totalDurationMinutes,
       startTime: startTimeValue,
-      status: taskStatus
+      status: taskStatus,
+      project: projectId || null,
+      subtasks: subtasks
     };
 
     console.log("Submitting Task Data:", taskData);
@@ -348,7 +358,88 @@ const TaskForm = ({ onClose, task }) => { // Accept 'task' prop
             )}
           </div>
 
+          {/* Project Selector (Icon only if selected, or separate ui?) Let's put it in the row */}
+          <div className="relative flex items-center gap-2 pl-2 border-l border-[var(--border-color)]">
+            <Folder size={18} className="text-[var(--text-secondary)]" />
+            <select
+              value={projectId}
+              onChange={(e) => {
+                if (e.target.value === 'new') {
+                  const name = prompt("New Project Name:");
+                  if (name) {
+                    addProject({ name }).then(p => setProjectId(p._id));
+                  }
+                } else {
+                  setProjectId(e.target.value);
+                }
+              }}
+              className="bg-transparent text-sm text-[var(--text-secondary)] outline-none cursor-pointer max-w-[100px] truncate"
+            >
+              <option value="">No Project</option>
+              {projects.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
+              <option value="new">+ Create New</option>
+            </select>
+          </div>
         </div>
+
+        {/* Subtasks Section */}
+        <div className="space-y-2 mt-2">
+          <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] font-medium">
+            <CheckSquare size={16} />
+            <span>Subtasks</span>
+          </div>
+          <div className="space-y-2 pl-1">
+            {subtasks.map((st, i) => (
+              <div key={i} className="flex items-center gap-2 group">
+                <input
+                  type="checkbox"
+                  checked={st.completed}
+                  onChange={(e) => {
+                    const newSt = [...subtasks];
+                    newSt[i].completed = e.target.checked;
+                    setSubtasks(newSt);
+                  }}
+                  className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <input
+                  value={st.title}
+                  onChange={(e) => {
+                    const newSt = [...subtasks];
+                    newSt[i].title = e.target.value;
+                    setSubtasks(newSt);
+                  }}
+                  className="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setSubtasks(subtasks.filter((_, idx) => idx !== i))}
+                  className="text-[var(--text-tertiary)] hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <Plus size={16} className="text-[var(--text-tertiary)]" />
+            <input
+              value={newSubtask}
+              onChange={(e) => setNewSubtask(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  if (newSubtask.trim()) {
+                    setSubtasks([...subtasks, { title: newSubtask, completed: false }]);
+                    setNewSubtask("");
+                  }
+                }
+              }}
+              placeholder="Add a subtask..."
+              className="flex-1 bg-transparent border-none outline-none text-sm placeholder:text-[var(--text-tertiary)] text-[var(--text-primary)]"
+            />
+          </div>
+        </div>
+
 
         {/* Time Inputs (Conditional) */}
         {showTimeInputs && (

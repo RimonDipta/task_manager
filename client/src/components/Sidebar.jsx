@@ -23,6 +23,7 @@ import {
 
 const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal, onMobileClose, isMobile }) => {
     const { user, logoutUser } = useContext(AuthContext);
+    const { projects, addProject } = useContext(TaskContext); // Use Projects from Context
     const location = useLocation();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -42,6 +43,13 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal, onMo
 
     const handleLogout = () => {
         logoutUser();
+    };
+
+    const handleCreateProject = async () => {
+        const name = prompt("Enter project name:");
+        if (name) {
+            await addProject({ name });
+        }
     };
 
     return (
@@ -162,6 +170,37 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal, onMo
                     <Kanban size={20} className={isActive("/dashboard/kanban") ? "text-[var(--primary-color)]" : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"} />
                     {!isCollapsed && <span className="text-sm font-medium">Kanban</span>}
                 </Link>
+
+                {/* Projects Section */}
+                {!isCollapsed && (
+                    <div className="pt-4 mt-2 border-t border-[var(--border-color)]">
+                        <div className="flex items-center justify-between px-3 mb-2">
+                            <h3 className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Projects</h3>
+                            <button onClick={handleCreateProject} className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors" title="Add Project">
+                                <PlusCircle size={14} />
+                            </button>
+                        </div>
+                        <div className="space-y-1">
+                            {projects.map(project => (
+                                <Link
+                                    key={project._id}
+                                    to={`/dashboard/project/${project._id}`} // Assuming route
+                                    onClick={() => onMobileClose && onMobileClose()}
+                                    className={`flex items-center gap-3 px-3 py-1.5 rounded-lg transition-colors group relative ${isActive(`/dashboard/project/${project._id}`)
+                                            ? "bg-[var(--primary-light)]/10 text-[var(--text-primary)]"
+                                            : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+                                        }`}
+                                >
+                                    <Folder size={16} className={project.color ? "" : "text-indigo-400"} style={{ color: project.color }} />
+                                    <span className="text-sm truncate">{project.name}</span>
+                                </Link>
+                            ))}
+                            {projects.length === 0 && (
+                                <p className="text-xs text-[var(--text-tertiary)] px-3 italic">No projects yet</p>
+                            )}
+                        </div>
+                    </div>
+                )}
             </nav>
 
             {/* User Profile & Dropdown */}

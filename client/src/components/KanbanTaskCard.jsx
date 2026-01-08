@@ -1,5 +1,7 @@
 import { useContext } from "react";
-import { Flag, Calendar, Clock, AlertCircle } from "lucide-react";
+import { useContext } from "react";
+import { Flag, Calendar, Clock, AlertCircle, CheckSquare } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import TimeTracker from "./TimeTracker";
 
@@ -34,8 +36,8 @@ const KanbanTaskCard = ({ task, provided, snapshot }) => {
         >
             {/* Priority Stripe */}
             <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full ${task.priority === 'p1' ? "bg-red-500" :
-                    task.priority === 'p2' ? "bg-amber-500" :
-                        task.priority === 'p3' ? "bg-green-500" : "bg-slate-300 dark:bg-slate-600"
+                task.priority === 'p2' ? "bg-amber-500" :
+                    task.priority === 'p3' ? "bg-green-500" : "bg-slate-300 dark:bg-slate-600"
                 }`} />
 
             <div className="pl-3">
@@ -58,6 +60,13 @@ const KanbanTaskCard = ({ task, provided, snapshot }) => {
                 <h4 className={`text-sm font-semibold text-[var(--text-primary)] mb-1 leading-snug ${task.completed ? "line-through opacity-60" : ""}`}>
                     {task.title}
                 </h4>
+                {task.project && (
+                    <div className="mb-2">
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded text-indigo-600 bg-indigo-50 border border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800">
+                            {typeof task.project === 'object' ? `@${task.project.name}` : ''}
+                        </span>
+                    </div>
+                )}
 
                 {/* Tags */}
                 {task.tags && task.tags.length > 0 && (
@@ -84,6 +93,13 @@ const KanbanTaskCard = ({ task, provided, snapshot }) => {
                     {/* <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] font-bold">
                  ME
              </div> */}
+                    {/* Subtask Info in Footer */}
+                    {task.subtasks && task.subtasks.length > 0 && (
+                        <div className="flex items-center gap-1 text-[10px] text-[var(--text-secondary)]">
+                            <CheckSquare size={10} />
+                            <span>{task.subtasks.filter(t => t.completed).length}/{task.subtasks.length}</span>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

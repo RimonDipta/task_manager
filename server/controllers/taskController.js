@@ -50,6 +50,7 @@ export const getTasks = async (req, res) => {
     const total = await Task.countDocuments(query);
 
     const tasks = await Task.find(query)
+      .populate("project", "name color") // Populate project details
       .sort({ createdAt: -1 }) // Maybe sort by priority default? Or dueDate?
       // Let's keep createdAt for consistency, or maybe 'dueDate' for Today view?
       // Default newest first is okay.
@@ -72,7 +73,7 @@ export const getTasks = async (req, res) => {
 // @route POST /api/tasks
 export const createTask = async (req, res) => {
   try {
-    const { title, description, priority, dueDate, recurrence, reminder, duration, startTime, tags, status, isAutoPriority } = req.body;
+    const { title, description, priority, dueDate, recurrence, reminder, duration, startTime, tags, status, isAutoPriority, project, subtasks } = req.body;
 
     if (!title) {
       return res.status(400).json({ message: "Title is required" });
@@ -90,7 +91,9 @@ export const createTask = async (req, res) => {
       startTime,
       tags,
       status,
-      isAutoPriority
+      isAutoPriority,
+      project,
+      subtasks
     });
 
     res.status(201).json(task);

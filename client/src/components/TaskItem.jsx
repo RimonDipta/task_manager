@@ -23,6 +23,15 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
 
   const { showToast } = useToast();
   const handleToggleComplete = () => {
+    // Check Subtasks first
+    if (!task.completed && task.subtasks && task.subtasks.length > 0) {
+      const incompleteSubtasks = task.subtasks.filter(st => !st.completed);
+      if (incompleteSubtasks.length > 0) {
+        showToast(`Complete all ${incompleteSubtasks.length} subtasks first!`, "error");
+        return;
+      }
+    }
+
     if (!task.completed) {
       playSound("success");
       showToast(`${task.title} marked as done`, "success");
@@ -76,6 +85,11 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
           <h3 className={`text-base font-semibold leading-tight text-[var(--text-primary)] ${task.completed ? "line-through text-[var(--text-tertiary)]" : ""}`}>
             {task.title}
           </h3>
+          {task.project && (
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+              {typeof task.project === 'object' ? `@${task.project.name}` : ''}
+            </span>
+          )}
 
           {/* Priority Flag */}
           {task.priority && task.priority !== 'p4' && (
@@ -122,9 +136,9 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
           {/* Due Date (Date + Time) */}
           {task.dueDate && (
             <div className={`flex items-center gap-1 text-xs font-medium ${task.priority === 'p1' ? "text-red-600" :
-                task.priority === 'p2' ? "text-amber-600" :
-                  task.priority === 'p3' ? "text-green-600" :
-                    "text-[var(--text-tertiary)]"
+              task.priority === 'p2' ? "text-amber-600" :
+                task.priority === 'p3' ? "text-green-600" :
+                  "text-[var(--text-tertiary)]"
               }`}>
               <Calendar size={12} className={
                 task.priority === 'p1' ? "text-red-500" :
@@ -146,6 +160,18 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
             </div>
           )}
         </div>
+
+        {/* Subtasks Preview */}
+        {task.subtasks && task.subtasks.length > 0 && (
+          <div className="flex flex-col gap-1 mt-2 pl-1 border-l-2 border-[var(--border-color)]">
+            {task.subtasks.map((st, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                <div className={`w-3 h-3 rounded-full border ${st.completed ? "bg-green-500 border-green-500" : "border-gray-300"}`}></div>
+                <span className={st.completed ? "line-through opacity-60" : ""}>{st.title}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
       </div>
 

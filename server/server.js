@@ -18,6 +18,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import projectRoutes from "./routes/projectRoutes.js";
 import { startScheduler } from "./utils/scheduler.js";
 
 connectDB();
@@ -41,6 +42,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/projects", projectRoutes);
 
 // Production static serve
 if (process.env.NODE_ENV === "production") {

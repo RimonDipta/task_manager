@@ -1,5 +1,7 @@
 import { useContext } from "react";
-import { Flag, Calendar, AlertCircle, Check, Play, Pause } from "lucide-react";
+import { useContext } from "react";
+import { Flag, Calendar, AlertCircle, Check, Play, Pause, CheckSquare } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import TimeTracker from "./TimeTracker";
 
@@ -29,8 +31,8 @@ const TaskCard = ({ task }) => {
         >
             {/* Priority Stripe */}
             <div className={`absolute left-0 top-4 bottom-4 w-1 rounded-r-full ${task.priority === 'p1' ? "bg-red-500" :
-                    task.priority === 'p2' ? "bg-amber-500" :
-                        task.priority === 'p3' ? "bg-green-500" : "bg-slate-300 dark:bg-slate-600"
+                task.priority === 'p2' ? "bg-amber-500" :
+                    task.priority === 'p3' ? "bg-green-500" : "bg-slate-300 dark:bg-slate-600"
                 }`} />
 
             <div className="pl-3 flex-1 flex flex-col">
@@ -70,6 +72,16 @@ const TaskCard = ({ task }) => {
                             </span>
                         ))}
                     </div>
+
+                    {/* Subtasks Count */}
+                    {task.subtasks && task.subtasks.length > 0 && (
+                        <div className="flex items-center gap-1 text-[10px] text-[var(--text-secondary)] bg-[var(--bg-surface)] px-1.5 py-0.5 rounded border border-[var(--border-color)]">
+                            <CheckSquare size={10} />
+                            <span>
+                                {task.subtasks.filter(t => t.completed).length}/{task.subtasks.length}
+                            </span>
+                        </div>
+                    )}
 
                     {/* Timer */}
                     {!task.completed && (
