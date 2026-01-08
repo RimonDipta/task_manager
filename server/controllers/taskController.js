@@ -21,23 +21,31 @@ export const getTasks = async (req, res) => {
     todayEnd.setHours(23, 59, 59, 999);
 
     if (filter === "today") {
-      // Today OR Overdue OR No Date (Backlog)
-
+      // Simplest "Today" View:
+      // 1. Due Today (Any Status) -> NOW: Only Pending
+      // 2. Overdue (Pending Only)
+      // 3. No Date (Pending Only - backlog usually pending)
 
       query.$or = [
-        { dueDate: { $gte: todayStart, $lte: todayEnd } },
-        { dueDate: { $lt: todayStart }, completed: false },
-        { dueDate: null, completed: false },
+        { dueDate: { $gte: todayStart, $lte: todayEnd }, completed: false }, // Today & Pending
+        { dueDate: { $lt: todayStart }, completed: false }, // Overdue
+        { dueDate: null, completed: false }, // Backlog
         { dueDate: { $exists: false }, completed: false }
       ];
     } else if (filter === "upcoming") {
       query.dueDate = { $gt: todayEnd };
+      query.completed = false; // Only pending
     } else if (filter === "completed") {
       query.completed = true;
     } else if (filter === "overdue") {
       query.dueDate = { $lt: todayStart };
       query.completed = false;
+    } else if (filter === "active") {
+      // "active" = All tasks that are NOT completed
+      query.completed = false;
     }
+    // filter === 'all' (or default) -> No extra query params, returns everything (used for Kanban)
+
 
     const total = await Task.countDocuments(query);
 

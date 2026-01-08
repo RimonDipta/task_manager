@@ -18,7 +18,15 @@ const Tasks = () => {
     const [initialLoaded, setInitialLoaded] = useState(false);
 
     // Layout & Filter State
-    const [layout, setLayout] = useState("list"); // 'list' | 'board'
+    const [layout, setLayout] = useState("list"); // 'list' | 'board' | 'grid'
+
+    // Reset page when layout changes to ensure we fetch fresh data correctly
+    useEffect(() => {
+        setPage(1);
+        setTasks([]);
+        setInitialLoaded(false);
+    }, [layout]);
+
     const [filters, setFilters] = useState({
         sort: "newest", // newest, oldest, priority
         priority: "all"
@@ -44,16 +52,37 @@ const Tasks = () => {
         const fetchTasks = async () => {
             try {
                 setLoading(true);
-                // Add artificial delay to see spinner/loading state if needed, but not necessary
-                const res = await taskApi.getTasks(user.token, { page, limit: 10 }); // 10 items per page
 
-                setTasks(prevTasks => {
-                    // Avoid duplicates just in case
-                    const newTasks = res.data.tasks.filter(nt => !prevTasks.some(pt => pt._id === nt._id));
-                    return [...prevTasks, ...newTasks];
-                });
+                // Dynamic Params based on Layout
+                let params = { page, limit: 10 };
 
-                setHasMore(page < res.data.pages);
+                if (layout === 'board') {
+                    // Kanban needs ALL tasks to populate columns correctly
+                    params = { page: 1, limit: 1000, filter: 'all' };
+                } else {
+                    // List/Grid shows Active tasks (paginated)
+                    params = { page, limit: 10, filter: 'active' };
+                }
+
+                const res = await taskApi.getTasks(user.token, params);
+
+                if (layout === 'board') {
+                    // For board, we just set all tasks (no infinite scroll append usually, or different logic)
+                    setTasks(res.data.tasks);
+                    setHasMore(false); // Disable infinite scroll for board for now
+                } else {
+                    setTasks(prevTasks => {
+                        // If page 1 (or layout switch triggered reset), replace. Else append.
+                        // Actually, if we switch layouts, we should probably reset 'tasks' and 'page' first.
+                        // But for now, let's just handle the append logic carefully.
+                        if (page === 1) return res.data.tasks;
+
+                        const newTasks = res.data.tasks.filter(nt => !prevTasks.some(pt => pt._id === nt._id));
+                        return [...prevTasks, ...newTasks];
+                    });
+                    setHasMore(page < res.data.pages);
+                }
+
                 setInitialLoaded(true);
             } catch (error) {
                 console.error("Failed to load tasks", error);
@@ -63,7 +92,7 @@ const Tasks = () => {
         };
 
         fetchTasks();
-    }, [page, user]); // Only fetch on page change or user change
+    }, [page, user, layout]); // Add layout dependency
 
     // Custom Handlers to update local state
     const handleUpdate = async (id, data) => {
