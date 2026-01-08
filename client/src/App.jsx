@@ -3,21 +3,25 @@ import { AuthProvider } from "./context/AuthContext";
 import { TaskProvider } from "./context/TaskContext";
 import { ToastProvider } from "./context/ToastContext";
 import { ThemeProvider } from "./context/ThemeContext";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import VerifyEmail from "./pages/VerifyEmail";
-import VerifyOtp from "./pages/VerifyOtp";
-import Tasks from "./pages/Tasks";
+import { lazy, Suspense, useEffect } from "react";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./components/Layout";
 import ToastContainer from "./components/ToastContainer";
-import { useEffect } from "react";
+import LoadingSpinner from "./components/LoadingSpinner";
 
-import LandingPage from "./pages/LandingPage";
-import HomeView from "./pages/HomeView";
-import PlaceholderPage from "./pages/PlaceholderPage";
+// Lazy Load Pages
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const VerifyOtp = lazy(() => import("./pages/VerifyOtp"));
+const Tasks = lazy(() => import("./pages/Tasks"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const HomeView = lazy(() => import("./pages/HomeView"));
+const PlaceholderPage = lazy(() => import("./pages/PlaceholderPage"));
 
 function App() {
   // Global Keyboard Shortcuts
@@ -32,88 +36,90 @@ function App() {
           <ToastProvider>
             <ToastContainer />
             <TaskProvider>
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/verify-otp" element={<VerifyOtp />} />
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/verify-otp" element={<VerifyOtp />} />
 
-                {/* Demo Pages Route */}
-                <Route path="/pages/:slug" element={<PlaceholderPage />} />
+                  {/* Demo Pages Route */}
+                  <Route path="/pages/:slug" element={<PlaceholderPage />} />
 
-                <Route element={<Layout />}>
-                  <Route
-                    path="/dashboard"
-                    element={<Navigate to="/dashboard/home" replace />}
-                  />
-                  <Route
-                    path="/dashboard/list"
-                    element={<Navigate to="/dashboard/home" replace />}
-                  />
+                  <Route element={<Layout />}>
+                    <Route
+                      path="/dashboard"
+                      element={<Navigate to="/dashboard/home" replace />}
+                    />
+                    <Route
+                      path="/dashboard/list"
+                      element={<Navigate to="/dashboard/home" replace />}
+                    />
 
-                  {/* Home View */}
-                  <Route
-                    path="/dashboard/home"
-                    element={
-                      <PrivateRoute>
-                        <HomeView />
-                      </PrivateRoute>
-                    }
-                  />
+                    {/* Home View */}
+                    <Route
+                      path="/dashboard/home"
+                      element={
+                        <PrivateRoute>
+                          <HomeView />
+                        </PrivateRoute>
+                      }
+                    />
 
-                  <Route
-                    path="/dashboard/today"
-                    element={
-                      <PrivateRoute>
-                        <Dashboard />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/upcoming"
-                    element={
-                      <PrivateRoute>
-                        <Dashboard />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/completed"
-                    element={
-                      <PrivateRoute>
-                        <Dashboard />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/kanban"
-                    element={
-                      <PrivateRoute>
-                        <Dashboard />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/analytics"
-                    element={
-                      <PrivateRoute>
-                        <Dashboard />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/tasks"
-                    element={
-                      <PrivateRoute>
-                        <Tasks />
-                      </PrivateRoute>
-                    }
-                  />
-                </Route>
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+                    <Route
+                      path="/dashboard/today"
+                      element={
+                        <PrivateRoute>
+                          <Dashboard />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/upcoming"
+                      element={
+                        <PrivateRoute>
+                          <Dashboard />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/completed"
+                      element={
+                        <PrivateRoute>
+                          <Dashboard />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/kanban"
+                      element={
+                        <PrivateRoute>
+                          <Dashboard />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/analytics"
+                      element={
+                        <PrivateRoute>
+                          <Dashboard />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/tasks"
+                      element={
+                        <PrivateRoute>
+                          <Tasks />
+                        </PrivateRoute>
+                      }
+                    />
+                  </Route>
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
             </TaskProvider>
           </ToastProvider>
         </AuthProvider>

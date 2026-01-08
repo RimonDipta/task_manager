@@ -16,4 +16,15 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion'],
+          ui: ['lucide-react', 'date-fns'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000, // Increase limit to 1MB to reduce noise after splitting
+  },
 });
