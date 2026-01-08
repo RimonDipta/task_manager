@@ -84,6 +84,16 @@ export const updateTask = async (req, res) => {
     req.body.status = req.body.completed ? "done" : "todo";
   }
 
+  // Handle completedAt logic
+  const isNowDone = req.body.status === "done" || req.body.completed === true;
+  const wasDone = task.status === "done" || task.completed === true;
+
+  if (isNowDone && !wasDone) {
+    req.body.completedAt = new Date();
+  } else if (!isNowDone && wasDone) {
+    req.body.completedAt = null; // Unset if reopened
+  }
+
   // Check for completion and recurrence
   if (req.body.completed && !task.completed && task.recurrence && task.recurrence.type !== "none") {
     // ... (recurrence logic remains the same)

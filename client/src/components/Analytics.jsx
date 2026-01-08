@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, ComposedChart, Line, Area, CartesianGrid, Cell } from "recharts";
-import { format, subDays, isSameDay, startOfDay, getHours, startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
+import { format, subDays, isSameDay, startOfDay, getHours, startOfWeek, endOfWeek, isWithinInterval, differenceInMinutes } from "date-fns";
 import { TaskContext } from "../context/TaskContext";
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock, TrendingUp, Flame, Activity } from "lucide-react";
@@ -8,7 +8,20 @@ import { CheckCircle2, Clock, TrendingUp, Flame, Activity } from "lucide-react";
 const Analytics = () => {
     const { tasks } = useContext(TaskContext);
 
-    // --- Data Generation (Same Logic, Refined) ---
+    // Helper: Calculate Cycle Time (Duration) in Minutes
+    // Wall-clock time from Creation -> Completion
+    const getTaskDuration = (task) => {
+        if (!task.createdAt) return 0;
+
+        // Use completedAt if available, otherwise fallback to updatedAt for legacy completed tasks
+        const end = task.completedAt ? new Date(task.completedAt) : new Date(task.updatedAt);
+        const start = new Date(task.createdAt);
+
+        const diff = differenceInMinutes(end, start);
+        return diff > 0 ? diff : 0; // Prevent negative if clocks skew
+    };
+
+    // --- Data Generation ---
 
     // 1. Weekly Data (Tasks & Time)
     const generateWeeklyData = () => {
@@ -16,13 +29,24 @@ const Analytics = () => {
         for (let i = 6; i >= 0; i--) {
             const date = subDays(new Date(), i);
             const key = format(date, "EEE");
-            const daysTasks = tasks.filter((t) => isSameDay(new Date(t.updatedAt), date));
-            const completedCount = daysTasks.filter(t => t.status === "done" || t.completed).length;
-            const timeSpentMinutes = daysTasks.reduce((acc, t) => acc + (t.timeSpent || 0), 0);
+
+            // Tasks *Completed* on this day
+            // We use filtered tasks that are Done and check their completion date
+            const completedTasks = tasks.filter((t) => {
+                if (t.status !== "done" && !t.completed) return false;
+                const completionDate = t.completedAt ? new Date(t.completedAt) : new Date(t.updatedAt);
+                return isSameDay(completionDate, date);
+            });
+
+            const completedCount = completedTasks.length;
+
+            // Sum duration of tasks completed this day
+            const totalDurationMinutes = completedTasks.reduce((acc, t) => acc + getTaskDuration(t), 0);
+
             data.push({
                 day: key,
                 tasks: completedCount,
-                hours: parseFloat((timeSpentMinutes / 60).toFixed(1))
+                hours: parseFloat((totalDurationMinutes / 60).toFixed(1))
             });
         }
         return data;
@@ -33,7 +57,9 @@ const Analytics = () => {
         const hours = Array(24).fill(0).map((_, i) => ({ hour: i, count: 0 }));
         tasks.forEach(task => {
             if (task.status === "done" || task.completed) {
-                const h = getHours(new Date(task.updatedAt));
+                // Use completion time for heat map
+                const completionDate = task.completedAt ? new Date(task.completedAt) : new Date(task.updatedAt);
+                const h = getHours(completionDate);
                 hours[h].count += 1;
             }
         });
@@ -47,9 +73,17 @@ const Analytics = () => {
     const getWeeklySummary = () => {
         const start = startOfWeek(new Date(), { weekStartsOn: 1 });
         const end = endOfWeek(new Date(), { weekStartsOn: 1 });
-        const thisWeeksTasks = tasks.filter(t => isWithinInterval(new Date(t.updatedAt), { start, end }));
-        const completed = thisWeeksTasks.filter(t => t.status === "done" || t.completed).length;
-        const totalMinutes = thisWeeksTasks.reduce((acc, t) => acc + (t.timeSpent || 0), 0);
+
+        // Filter tasks completed this week
+        const thisWeeksCompletedTasks = tasks.filter(t => {
+            if (t.status !== "done" && !t.completed) return false;
+            const completionDate = t.completedAt ? new Date(t.completedAt) : new Date(t.updatedAt);
+            return isWithinInterval(completionDate, { start, end });
+        });
+
+        const completed = thisWeeksCompletedTasks.length;
+        const totalMinutes = thisWeeksCompletedTasks.reduce((acc, t) => acc + getTaskDuration(t), 0);
+
         return {
             completed,
             hours: (totalMinutes / 60).toFixed(1),
@@ -64,7 +98,12 @@ const Analytics = () => {
         for (let i = 0; i < 365; i++) {
             const date = subDays(today, i);
             const hasActivity = tasks.some(
-                (t) => (t.status === "done" || t.completed) && isSameDay(new Date(t.updatedAt), date)
+                (t) => {
+                    if (t.status !== "done" && !t.completed) return false;
+                    // Check if completed on this date
+                    const completionDate = t.completedAt ? new Date(t.completedAt) : new Date(t.updatedAt);
+                    return isSameDay(completionDate, date);
+                }
             );
             if (hasActivity) streak++;
             else if (i === 0 && !hasActivity) continue;
@@ -136,7 +175,7 @@ const Analytics = () => {
                     <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-2 text-[var(--text-secondary)]">
                             <Clock size={18} className="text-emerald-500" />
-                            <span className="text-sm font-medium">Hours Logged</span>
+                            <span className="text-sm font-medium">Cycle Time (Hrs)</span>
                         </div>
                         <div className="text-3xl font-bold text-[var(--text-primary)]">{summary.hours}<span className="text-lg text-[var(--text-secondary)] font-normal ml-1">h</span></div>
                     </div>
@@ -148,7 +187,7 @@ const Analytics = () => {
                     <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-2 text-[var(--text-secondary)]">
                             <Activity size={18} className="text-orange-500" />
-                            <span className="text-sm font-medium">Avg Time/Task</span>
+                            <span className="text-sm font-medium">Avg Cycle/Task</span>
                         </div>
                         <div className="text-3xl font-bold text-[var(--text-primary)]">{summary.avgTime}<span className="text-lg text-[var(--text-secondary)] font-normal ml-1">m</span></div>
                     </div>
@@ -214,7 +253,7 @@ const Analytics = () => {
                                     strokeWidth={3}
                                     dot={{ r: 4, strokeWidth: 2, fill: "var(--bg-card)", stroke: "#f43f5e" }}
                                     activeDot={{ r: 6 }}
-                                    name="Hours Logged"
+                                    name="Cycle Hours"
                                 />
                             </ComposedChart>
                         </ResponsiveContainer>
