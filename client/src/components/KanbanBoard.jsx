@@ -5,7 +5,7 @@ import { isToday, isFuture, isValid } from "date-fns";
 import KanbanTaskCard from "./KanbanTaskCard";
 
 const KanbanBoard = ({ filterType = "all", filters, tasks: propTasks }) => {
-    const { tasks: contextTasks, updateTask } = useContext(TaskContext);
+    const { tasks: contextTasks, updateTask, loading } = useContext(TaskContext);
     const tasks = propTasks || contextTasks;
     const [columns, setColumns] = useState({
         todo: { name: "To Do", items: [], color: "bg-slate-50 dark:bg-slate-900/50", accent: "indigo" },
@@ -44,8 +44,14 @@ const KanbanBoard = ({ filterType = "all", filters, tasks: propTasks }) => {
                 return true;
             });
 
+
             setColumns({
-                todo: { ...columns.todo, items: filteredTasks.filter((t) => !t.status || t.status === "todo") },
+                // Catch-all: If status is 'todo' OR missing OR unknown, put it in To Do.
+                // But specifically separate doing/done.
+                todo: {
+                    ...columns.todo,
+                    items: filteredTasks.filter((t) => !t.status || t.status === "todo" || (t.status !== 'doing' && t.status !== 'done'))
+                },
                 doing: { ...columns.doing, items: filteredTasks.filter((t) => t.status === "doing") },
                 done: { ...columns.done, items: filteredTasks.filter((t) => t.status === "done") },
             });
@@ -83,6 +89,27 @@ const KanbanBoard = ({ filterType = "all", filters, tasks: propTasks }) => {
         }
     };
 
+
+
+    if (loading && !tasks.length) {
+        return (
+            <div className="flex flex-col md:flex-row gap-6 overflow-x-auto pb-4 items-start h-full">
+                {[1, 2, 3].map((col) => (
+                    <div key={col} className="flex-1 min-w-[300px] w-full flex flex-col h-full max-h-[calc(100vh-200px)]">
+                        <div className="mb-3 p-3 rounded-xl flex items-center justify-between border border-[var(--border-color)] bg-[var(--bg-card)] shadow-sm animate-pulse">
+                            <div className="h-5 bg-slate-200 dark:bg-slate-700/50 rounded w-24"></div>
+                            <div className="h-5 w-8 bg-slate-200 dark:bg-slate-700/50 rounded-full"></div>
+                        </div>
+                        <div className="flex-1 p-3 rounded-2xl border border-transparent space-y-3">
+                            {[1, 2, 3].map((i) => (
+                                <div key={i} className="bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-color)] shadow-sm h-32 animate-pulse"></div>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
     return (
         <div className="flex flex-col md:flex-row gap-6 overflow-x-auto pb-4 items-start h-full">
             <DragDropContext onDragEnd={onDragEnd}>

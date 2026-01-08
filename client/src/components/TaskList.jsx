@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { TaskContext } from "../context/TaskContext";
 import TaskItem from "./TaskItem";
 import TaskCard from "./TaskCard";
+import TaskSkeleton from "./TaskSkeleton";
 import { isToday, isFuture, parseISO, isValid } from "date-fns";
 
 const TaskList = ({ filterType = "all", filters, layout = "list", limit, tasks: propTasks, onUpdate, onDelete }) => {
@@ -51,10 +52,18 @@ const TaskList = ({ filterType = "all", filters, layout = "list", limit, tasks: 
 
   const displayTasks = limit ? filteredTasks.slice(0, limit) : filteredTasks;
 
+  // Import TaskSkeleton at the top first! (Need to add import)
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      <div className={layout === "grid"
+        ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        : "space-y-4"
+      }>
+        {layout === "grid" ? (
+          [1, 2, 3, 4, 5, 6].map((i) => <TaskSkeleton key={i} />)
+        ) : (
+          [1, 2, 3, 4, 5].map((i) => <TaskSkeleton key={i} />)
+        )}
       </div>
     );
   }
