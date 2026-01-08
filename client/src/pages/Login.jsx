@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../api/authApi";
 import { AuthContext } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { ShieldCheck, Eye, EyeOff, Zap } from "lucide-react";
 import api from "../api/axios";
 import usePageTitle from "../hooks/usePageTitle";
 
@@ -66,7 +66,13 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)] px-4 transition-colors duration-300">
-      <div className="w-full max-w-sm bg-[var(--bg-card)] p-8 rounded-2xl shadow-xl border border-[var(--border-color)]">
+      <div className="w-full max-w-sm bg-[var(--bg-card)] p-8 rounded-2xl shadow-xl border border-[var(--border-color)] relative">
+        {/* Logo */}
+        <div className="absolute top-8 left-8">
+          <Link to="/" className="flex items-center gap-2 font-bold text-[var(--primary-color)] hover:opacity-80 transition-opacity">
+            <Zap size={24} />
+          </Link>
+        </div>
         <div className="text-center mb-8">
           {is2FABlocked ? (
             <div className="mx-auto w-12 h-12 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mb-4">

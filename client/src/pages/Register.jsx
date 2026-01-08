@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../api/authApi";
 import { AuthContext } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Zap } from "lucide-react";
 
 import PasswordStrength from "../components/PasswordStrength";
 import { getPasswordStrength } from "../utils/passwordStrength";
@@ -66,7 +66,13 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)] px-4 transition-colors duration-300">
-      <div className="w-full max-w-sm bg-[var(--bg-card)] p-8 rounded-2xl shadow-xl border border-[var(--border-color)]">
+      <div className="w-full max-w-sm bg-[var(--bg-card)] p-8 rounded-2xl shadow-xl border border-[var(--border-color)] relative">
+        {/* Logo */}
+        <div className="absolute top-8 left-8">
+          <Link to="/" className="flex items-center gap-2 font-bold text-[var(--primary-color)] hover:opacity-80 transition-opacity">
+            <Zap size={24} />
+          </Link>
+        </div>
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-[var(--text-primary)] tracking-tight">Create account</h2>
           <p className="text-[var(--text-secondary)] mt-2">Start managing your tasks today</p>

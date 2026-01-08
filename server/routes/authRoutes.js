@@ -8,6 +8,7 @@ import {
 } from "../controllers/authController.js";
 import {
   forgotPassword,
+  verifyResetOtp,
   resetPassword,
 } from "../controllers/passwordController.js";
 import protect from "../middleware/authMiddleware.js";
@@ -19,7 +20,8 @@ router.post("/login", loginUser);
 router.post("/verify-otp", verifyOtp);
 router.post("/resend-otp", resendOtp);
 router.post("/forgot-password", forgotPassword);
-router.post("/reset-password/:token", resetPassword);
+router.post("/verify-reset-otp", verifyResetOtp);
+router.post("/reset-password", resetPassword);
 router.get("/me", protect, getMe);
 
 export default router;
