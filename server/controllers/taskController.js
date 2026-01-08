@@ -6,17 +6,63 @@ export const getTasks = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 5;
-    const search = req.query.search || "";
+    const filter = req.query.filter || "all"; // all, today, upcoming, completed, overdue, top_priorities
 
     const query = {
       user: req.user,
       title: { $regex: search, $options: "i" },
     };
 
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    if (filter === "today") {
+      // Today OR Overdue OR No Date (Backlog)
+      query.$or = [
+        { dueDate: { $gte: todayStart, $lte: todayEnd } }, // Today
+        { dueDate: { $lt: todayStart }, completed: false }, // Overdue
+        { dueDate: null }, // Backlog
+        { dueDate: { $exists: false } } // Backlog check
+      ];
+      // Exclude completed unless it was done today?
+      // Usually "Today" view focuses on what needs to be done.
+      // But if I finished it today, it's nice to see.
+      // Let's keep it simple: Show pending + Done *Today*.
+      // Actually simpler logic:
+      // Show (Due Today OR Overdue OR No Date) AND (Pending OR Completed Today)
+      // For now, let's just stick to the $or logic. It might show old completed tasks if they are "Overdue" but completed.
+      // Fix: If completed=true, due date must be today or null?
+      // Let's refine:
+      // (Pending AND (Due <= Today OR Null)) OR (Completed AND DoneAt == Today) -> Too complex for now.
+      // Simplest "Today" View:
+      // 1. Due Today (Any Status)
+      // 2. Overdue (Pending Only)
+      // 3. No Date (Pending Only - backlog usually pending)
+
+      query.$or = [
+        { dueDate: { $gte: todayStart, $lte: todayEnd } },
+        { dueDate: { $lt: todayStart }, completed: false },
+        { dueDate: null, completed: false },
+        { dueDate: { $exists: false }, completed: false }
+      ];
+    } else if (filter === "upcoming") {
+      query.dueDate = { $gt: todayEnd };
+    } else if (filter === "completed") {
+      query.completed = true;
+    } else if (filter === "overdue") {
+      query.dueDate = { $lt: todayStart };
+      query.completed = false;
+    }
+
     const total = await Task.countDocuments(query);
 
     const tasks = await Task.find(query)
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1 }) // Maybe sort by priority default? Or dueDate?
+      // Let's keep createdAt for consistency, or maybe 'dueDate' for Today view?
+      // Default newest first is okay.
       .skip((page - 1) * limit)
       .limit(limit);
 

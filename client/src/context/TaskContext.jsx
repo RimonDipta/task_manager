@@ -17,21 +17,30 @@ export const TaskProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchTasks();
-    }
-  }, [page, search, user]);
+  // We remove the auto-fetch on mount from here because Dashboard/Pages will control it.
+  // Or we can keep it with default args.
+  // Actually, let's keep it but make it responsive to a new 'filter' state if we want global filter.
+  // But pages have local Views.
+  // Let's allow fetchTasks to take args.
 
-  const fetchTasks = async () => {
+  useEffect(() => {
+    // Initial load? maybe just let components trigger it.
+    // Providing a default load for initial context populate.
+    if (user) {
+      // fetchTasks(); // Disable auto-fetch, let Page trigger it with correct filter.
+    }
+  }, [user]);
+
+  const fetchTasks = async (customParams = {}) => {
     if (!user) return;
 
     try {
       setLoading(true);
       const res = await taskApi.getTasks(user.token, {
         page,
-        limit: 5,
+        limit: 10, // Increased default limit
         search,
+        ...customParams // { filter: 'today', page: 1, etc }
       });
 
       setTasks(res.data.tasks);

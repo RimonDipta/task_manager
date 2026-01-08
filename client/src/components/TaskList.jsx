@@ -12,64 +12,19 @@ const TaskList = ({ filterType = "all", filters, layout = "list", limit, tasks: 
   // NOTE: 'filters' now comes from props, not local state.
   // We rely on the parent (Dashboard) to manage filters.
 
+  // Server-side filtering is now implemented. 
+  // We can treat 'tasks' as the source of truth for the current view.
+  // However, we might crave some client-side refinement or sorting if filters.priority is set.
+
   const filteredTasks = [...tasks]
     .filter((task) => {
-      // 1. Date Filtering (Today / Upcoming / Top Priorities)
-      if (filterType === "today") {
-        if (!task.dueDate) return true; // Show backlog/undated
-        const date = new Date(task.dueDate);
-        if (!isValid(date)) return true; // Invalid date = also backlog
-
-        // Show Today OR Past (Overdue) that are NOT completed
-        // If completed, only show if it was actually today? 
-        // User said: "If a tasks is overdue and not marked as done... Show them... And keep them on today"
-
-        if (task.completed) {
-          return isToday(date); // Only show completed if they were actually for today
-        }
-
-        // For uncompleted: Today OR Past
-        return isToday(date) || date < new Date().setHours(0, 0, 0, 0);
-      }
-
-      if (filterType === "top_priorities") {
-        // Logic: Today (or no date) OR Future High Priority (P1)
-        // Also typically exclude completed for priorities
-        if (task.completed) return false;
-
-        let isRelevantDate = false;
-        if (!task.dueDate) isRelevantDate = true;
-        else {
-          const date = new Date(task.dueDate);
-          if (!isValid(date)) isRelevantDate = true;
-          else if (isToday(date)) isRelevantDate = true;
-          else if (isFuture(date) && task.priority === 'p1') isRelevantDate = true;
-        }
-
-        return isRelevantDate;
-      }
-
-      if (filterType === "upcoming") {
-        if (!task.dueDate) return false;
-        const date = new Date(task.dueDate);
-        if (!isValid(date) || !isFuture(date) || isToday(date)) return false;
-      }
-
-      if (filterType === "completed") {
-        return task.completed;
-      }
-
-      // 2. Standard Filters
+      // 1. Standard Filters (Priority / Status) - These are UI toggles in the menu
       if (filters && filters.priority !== "all" && task.priority !== filters.priority)
         return false;
 
-      // Status Filter logic
-      if (filterType === "completed") {
-        // Already handled above
-      } else {
-        if (!task.completed) return true; // Show pending
-        return false; // Hide completed
-      }
+      // 2. Client-side Status check (e.g. if we are in 'Today' view but toggle 'Completed' off?)
+      // For now, let's assume the server returned the right "Main" category (Today/Upcoming).
+      // We only filter by the specific UI dropdowns here.
 
       return true;
     })

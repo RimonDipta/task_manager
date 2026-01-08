@@ -2,14 +2,18 @@ import { useContext, useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-import TaskList from "../components/TaskList";
+import { useContext, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { TaskContext } from "../context/TaskContext";
 import KanbanBoard from "../components/KanbanBoard";
 import Analytics from "../components/Analytics";
 import DisplayMenu from "../components/DisplayMenu";
 import usePageTitle from "../hooks/usePageTitle";
 
 const Dashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, fetchTasks } = useContext(AuthContext); // Actually fetchTasks is in TaskContext
+  const { fetchTasks: getTasksData } = useContext(TaskContext); // Import separately
   const location = useLocation();
 
   const getGreeting = () => {
@@ -62,10 +66,11 @@ const Dashboard = () => {
   // REMOVED: isKanbanRoute now has its own dedicated render condition separate from 'layout' state.
   // We keep 'layout' state persistent for other views (Today/Upcoming).
   useEffect(() => {
-    // Optional: Reset layout to 'list' on route change if desired? 
-    // Or keep it persistent?
-    // Let's keep it persistent.
-  }, []);
+    // Fetch tasks when filterType changes
+    if (user) {
+      getTasksData({ filter: filterType });
+    }
+  }, [filterType, user]);
 
   // If in Analytics view, we don't need the standard layout/filter UI
   if (isAnalyticsView) {
