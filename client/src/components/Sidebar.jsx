@@ -2,6 +2,7 @@ import { useContext, useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
+import { TaskContext } from "../context/TaskContext";
 import {
 
     Settings,
@@ -187,8 +188,8 @@ const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal, onMo
                                     to={`/dashboard/project/${project._id}`} // Assuming route
                                     onClick={() => onMobileClose && onMobileClose()}
                                     className={`flex items-center gap-3 px-3 py-1.5 rounded-lg transition-colors group relative ${isActive(`/dashboard/project/${project._id}`)
-                                            ? "bg-[var(--primary-light)]/10 text-[var(--text-primary)]"
-                                            : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+                                        ? "bg-[var(--primary-light)]/10 text-[var(--text-primary)]"
+                                        : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
                                         }`}
                                 >
                                     <Folder size={16} className={project.color ? "" : "text-indigo-400"} style={{ color: project.color }} />
