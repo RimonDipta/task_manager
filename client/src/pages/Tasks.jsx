@@ -132,7 +132,7 @@ const Tasks = () => {
                     ) : (
                         layout === 'board' ? (
                             <div className="h-[calc(100vh-250px)]">
-                                <KanbanBoard filterType="all" filters={filters} />
+                                <KanbanBoard filterType="all" filters={filters} tasks={tasks} />
                             </div>
                         ) : (
                             <TaskList

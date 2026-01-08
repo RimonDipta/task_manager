@@ -4,8 +4,9 @@ import { TaskContext } from "../context/TaskContext";
 import { isToday, isFuture, isValid } from "date-fns";
 import KanbanTaskCard from "./KanbanTaskCard";
 
-const KanbanBoard = ({ filterType = "all", filters }) => {
-    const { tasks, updateTask } = useContext(TaskContext);
+const KanbanBoard = ({ filterType = "all", filters, tasks: propTasks }) => {
+    const { tasks: contextTasks, updateTask } = useContext(TaskContext);
+    const tasks = propTasks || contextTasks;
     const [columns, setColumns] = useState({
         todo: { name: "To Do", items: [], color: "bg-slate-50 dark:bg-slate-900/50", accent: "indigo" },
         doing: { name: "In Progress", items: [], color: "bg-blue-50 dark:bg-blue-900/20", accent: "blue" },
@@ -102,8 +103,8 @@ const KanbanBoard = ({ filterType = "all", filters }) => {
                                     {column.name}
                                 </h2>
                                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${columnId === 'todo' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' :
-                                        columnId === 'doing' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' :
-                                            'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
+                                    columnId === 'doing' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' :
+                                        'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
                                     }`}>
                                     {column.items.length}
                                 </span>
