@@ -19,7 +19,10 @@ import {
     CalendarRange,
     CheckCircle,
     Home,
-    X
+    CheckCircle,
+    Home,
+    X,
+    Folder
 } from "lucide-react";
 
 const Sidebar = ({ isCollapsed, toggleSidebar, openSettings, openTaskModal, onMobileClose, isMobile }) => {
