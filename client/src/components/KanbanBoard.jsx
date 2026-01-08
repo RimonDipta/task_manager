@@ -2,15 +2,14 @@ import { useContext, useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { TaskContext } from "../context/TaskContext";
 import { isToday, isFuture, isValid } from "date-fns";
-import { Flag, AlertCircle, Calendar } from "lucide-react";
-import TimeTracker from "./TimeTracker";
+import KanbanTaskCard from "./KanbanTaskCard";
 
 const KanbanBoard = ({ filterType = "all", filters }) => {
     const { tasks, updateTask } = useContext(TaskContext);
     const [columns, setColumns] = useState({
-        todo: { name: "To Do", items: [] },
-        doing: { name: "In Progress", items: [] },
-        done: { name: "Done", items: [] },
+        todo: { name: "To Do", items: [], color: "bg-slate-50 dark:bg-slate-900/50", accent: "indigo" },
+        doing: { name: "In Progress", items: [], color: "bg-blue-50 dark:bg-blue-900/20", accent: "blue" },
+        done: { name: "Done", items: [], color: "bg-green-50 dark:bg-green-900/20", accent: "emerald" },
     });
 
     useEffect(() => {
@@ -19,11 +18,6 @@ const KanbanBoard = ({ filterType = "all", filters }) => {
             const filteredTasks = tasks.filter(task => {
                 // 1. Date Logic
                 if (filterType === "all") {
-                    // Show everything (that isn't deleted). 
-                    // No date filtering applied.
-
-                    // But typically we might hide Completed items from ToDo/Doing columns?
-                    // Kanban usually moves them to Done. So we keep them.
                     return true;
                 }
 
@@ -38,22 +32,7 @@ const KanbanBoard = ({ filterType = "all", filters }) => {
                     if (!isValid(date) || !isFuture(date) || isToday(date)) return false;
                 }
                 if (filterType === "completed") {
-                    // Logic: likely show all completed? But Kanban separates by status.
-                    // If we are in "Completed" view, does KanBan make sense? 
-                    // Usually Kanban shows Todo -> Done.
-                    // If filterType is completed, we might restricts to ONLY 'done' column?
-                    // Or maybe we treat it as just showing completed tasks in their respective finished state?
-                    // Let's assume standard filtering:
                     return task.completed;
-                } else {
-                    // Hide completed tasks in non-completed views? 
-                    // Typically Kanban board shows 'Done' column. 
-                    // If we hide completed tasks, 'Done' column is empty.
-                    // The user is asking for "Display Layout" toggle. 
-                    // If I'm on "Today" and switch to Board, I expect to see Today's tasks in Todo/Doing/Done.
-                    // So we should NOT hide completed tasks blindly.
-                    // However, the `TaskList` logic hides them.
-                    // Let's stick to standard Kanban behavior: Show all statuses, but respect Date/Priority.
                 }
 
                 // 2. Priority Logic
@@ -65,9 +44,9 @@ const KanbanBoard = ({ filterType = "all", filters }) => {
             });
 
             setColumns({
-                todo: { name: "To Do", items: filteredTasks.filter((t) => !t.status || t.status === "todo") },
-                doing: { name: "In Progress", items: filteredTasks.filter((t) => t.status === "doing") },
-                done: { name: "Done", items: filteredTasks.filter((t) => t.status === "done") },
+                todo: { ...columns.todo, items: filteredTasks.filter((t) => !t.status || t.status === "todo") },
+                doing: { ...columns.doing, items: filteredTasks.filter((t) => t.status === "doing") },
+                done: { ...columns.done, items: filteredTasks.filter((t) => t.status === "done") },
             });
         }
     }, [tasks, filterType, filters]);
@@ -109,86 +88,46 @@ const KanbanBoard = ({ filterType = "all", filters }) => {
                 {Object.entries(columns).map(([columnId, column], index) => {
                     return (
                         <div
-                            className="flex-1 min-w-[300px] w-full"
+                            className="flex-1 min-w-[300px] w-full flex flex-col h-full max-h-[calc(100vh-200px)]"
                             key={columnId}
                         >
-                            <h2 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center justify-between">
-                                {column.name}
-                                <span className="bg-[var(--bg-card)] text-[var(--text-secondary)] text-xs py-1 px-2 rounded-full border border-[var(--border-color)]">
+                            {/* Column Header */}
+                            <div className={`
+                                mb-3 p-3 rounded-xl flex items-center justify-between border border-[var(--border-color)] bg-[var(--bg-card)] shadow-sm
+                                ${columnId === 'todo' ? 'border-l-4 border-l-indigo-500' :
+                                    columnId === 'doing' ? 'border-l-4 border-l-blue-500' :
+                                        'border-l-4 border-l-green-500'}
+                            `}>
+                                <h2 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wide">
+                                    {column.name}
+                                </h2>
+                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${columnId === 'todo' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' :
+                                        columnId === 'doing' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' :
+                                            'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
+                                    }`}>
                                     {column.items.length}
                                 </span>
-                            </h2>
+                            </div>
+
+                            {/* Droppable Area */}
                             <Droppable droppableId={columnId}>
                                 {(provided, snapshot) => (
                                     <div
                                         {...provided.droppableProps}
                                         ref={provided.innerRef}
-                                        className={`p-4 rounded-xl min-h-[500px] transition-colors ${snapshot.isDraggingOver ? "bg-indigo-50/50 border-indigo-200" : "bg-[var(--bg-surface)] border border-[var(--border-color)]"
-                                            }`}
+                                        className={`
+                                            flex-1 p-3 rounded-2xl transition-all overflow-y-auto custom-scrollbar border
+                                            ${snapshot.isDraggingOver ? "bg-[var(--bg-surface)] border-indigo-300 ring-2 ring-indigo-500/10" : `border-transparent ${column.color}`}
+                                        `}
                                     >
                                         {column.items.map((item, index) => (
                                             <Draggable key={item._id} draggableId={item._id} index={index}>
                                                 {(provided, snapshot) => (
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        className={`bg-[var(--bg-card)] p-4 rounded-lg shadow-sm mb-3 border border-[var(--border-color)] group hover:shadow-md transition-all ${snapshot.isDragging ? "rotate-2 shadow-xl ring-2 ring-indigo-500/20" : ""
-                                                            }`}
-                                                        style={{
-                                                            ...provided.draggableProps.style,
-                                                        }}
-                                                    >
-                                                        <div className="flex justify-between items-start mb-2">
-                                                            <div title={`Priority ${item.priority.replace('p', '')}`}>
-                                                                <Flag
-                                                                    size={14}
-                                                                    className={
-                                                                        item.priority === 'p1' ? "fill-red-500 text-red-600" :
-                                                                            item.priority === 'p2' ? "fill-amber-500 text-amber-600" :
-                                                                                item.priority === 'p3' ? "fill-green-500 text-green-600" :
-                                                                                    "text-slate-400"
-                                                                    }
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        {/* Title Row with Timer/Overdue */}
-                                                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                                                            <p className="text-[var(--text-primary)] font-medium text-sm leading-snug">{item.title}</p>
-
-                                                            {!item.completed && (
-                                                                <>
-                                                                    {/* Timer */}
-                                                                    {item.duration > 0 && (
-                                                                        <TimeTracker task={item} />
-                                                                    )}
-                                                                    {/* Overdue */}
-                                                                    {item.dueDate && new Date(item.dueDate) < new Date().setHours(0, 0, 0, 0) && (
-                                                                        <div className="flex items-center gap-1 bg-red-50 px-1.5 py-0.5 rounded text-red-600 border border-red-100 text-[10px]">
-                                                                            <AlertCircle size={10} />
-                                                                            <span>Overdue</span>
-                                                                        </div>
-                                                                    )}
-                                                                </>
-                                                            )}
-                                                        </div>
-
-                                                        {item.dueDate && (
-                                                            <div className={`mt-2 flex items-center gap-1 text-xs font-medium ${item.priority === 'p1' ? "text-red-600" :
-                                                                item.priority === 'p2' ? "text-amber-600" :
-                                                                    item.priority === 'p3' ? "text-green-600" :
-                                                                        "text-slate-400"
-                                                                }`}>
-                                                                <Calendar size={12} className={
-                                                                    item.priority === 'p1' ? "text-red-500" :
-                                                                        item.priority === 'p2' ? "text-amber-500" :
-                                                                            item.priority === 'p3' ? "text-green-500" :
-                                                                                "text-slate-400"
-                                                                } />
-                                                                <span>{new Date(item.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                    <KanbanTaskCard
+                                                        task={item}
+                                                        provided={provided}
+                                                        snapshot={snapshot}
+                                                    />
                                                 )}
                                             </Draggable>
                                         ))}

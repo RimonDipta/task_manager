@@ -4,6 +4,10 @@ import * as taskApi from "../api/taskApi";
 import TaskList from "../components/TaskList";
 import usePageTitle from "../hooks/usePageTitle";
 
+import DisplayMenu from "../components/DisplayMenu";
+import KanbanBoard from "../components/KanbanBoard";
+import TaskSkeleton from "../components/TaskSkeleton";
+
 const Tasks = () => {
     usePageTitle("All Tasks - Doora");
     const { user } = useContext(AuthContext);
@@ -13,6 +17,13 @@ const Tasks = () => {
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
     const [initialLoaded, setInitialLoaded] = useState(false);
+
+    // Layout & Filter State
+    const [layout, setLayout] = useState("list"); // 'list' | 'board'
+    const [filters, setFilters] = useState({
+        sort: "newest", // newest, oldest, priority
+        priority: "all"
+    });
 
     // Observer for infinite scroll
     const observer = useRef();
@@ -79,21 +90,60 @@ const Tasks = () => {
     return (
         <div className="h-full">
             <main className="flex-1 overflow-y-auto p-4 sm:p-8 h-full custom-scrollbar">
-                <div className="max-w-5xl mx-auto space-y-8">
-                    <div>
-                        <h1 className="text-3xl font-bold text-[var(--text-primary)] tracking-tight">
-                            All Tasks
-                        </h1>
-                        <p className="text-slate-500 mt-1">
-                            View and manage all your tasks in one place.
-                        </p>
+                <div className="max-w-7xl mx-auto space-y-8">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h1 className="text-3xl font-bold text-[var(--text-primary)] tracking-tight">
+                                All Tasks
+                            </h1>
+                            <p className="text-slate-500 mt-1">
+                                View and manage all your tasks in one place.
+                            </p>
+                        </div>
+
+                        {/* Display Menu */}
+                        <div className="flex-shrink-0">
+                            <DisplayMenu
+                                layout={layout}
+                                setLayout={setLayout}
+                                filters={filters}
+                                setFilters={setFilters}
+                            />
+                        </div>
                     </div>
 
-                    <TaskList
-                        tasks={tasks}
-                        onUpdate={handleUpdate}
-                        onDelete={handleDelete}
-                    />
+                    {/* Content Area */}
+                    {loading && !initialLoaded ? (
+                        // Skeleton Loading
+                        <div className={layout === 'board' ? "flex gap-6 overflow-hidden" : "space-y-4"}>
+                            {layout === 'board' ? (
+                                // Board Skeleton
+                                [1, 2, 3].map(i => (
+                                    <div key={i} className="flex-1 space-y-3 min-w-[300px]">
+                                        <div className="h-10 bg-[var(--bg-card)] rounded-xl border border-[var(--border-color)]"></div>
+                                        {[1, 2, 3].map(j => <TaskSkeleton key={j} />)}
+                                    </div>
+                                ))
+                            ) : (
+                                // List Skeleton
+                                [1, 2, 3, 4, 5].map(i => <TaskSkeleton key={i} />)
+                            )}
+                        </div>
+                    ) : (
+                        layout === 'board' ? (
+                            <div className="h-[calc(100vh-250px)]">
+                                <KanbanBoard filterType="all" filters={filters} />
+                            </div>
+                        ) : (
+                            <TaskList
+                                tasks={tasks}
+                                layout="list"
+                                filters={filters}
+                                onUpdate={handleUpdate}
+                                onDelete={handleDelete}
+                            />
+                        )
+                    )}
 
                     {/* Loading Indicator / Observer Target */}
                     <div ref={lastTaskElementRef} className="py-4 text-center">
