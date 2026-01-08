@@ -1,19 +1,17 @@
 import { useContext, useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-
-import { useContext, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
 import { TaskContext } from "../context/TaskContext";
+
+import TaskList from "../components/TaskList";
 import KanbanBoard from "../components/KanbanBoard";
 import Analytics from "../components/Analytics";
 import DisplayMenu from "../components/DisplayMenu";
 import usePageTitle from "../hooks/usePageTitle";
 
 const Dashboard = () => {
-  const { user, fetchTasks } = useContext(AuthContext); // Actually fetchTasks is in TaskContext
-  const { fetchTasks: getTasksData } = useContext(TaskContext); // Import separately
+  const { user } = useContext(AuthContext);
+  const { fetchTasks: getTasksData } = useContext(TaskContext);
   const location = useLocation();
 
   const getGreeting = () => {
@@ -47,8 +45,6 @@ const Dashboard = () => {
   if (isCompletedView) pageTitle = "Completed - Doora";
   if (isKanbanRoute) {
     pageTitle = "Kanban - Doora";
-    // We don't overwrite filterType here because it's derived const.
-    // We'll handle it in the derivation logic.
   }
   if (isAnalyticsView) pageTitle = "Analytics - Doora";
 
@@ -62,9 +58,6 @@ const Dashboard = () => {
     sort: "newest",
   });
 
-  // Sync layout with route initially or when route changes significantly
-  // REMOVED: isKanbanRoute now has its own dedicated render condition separate from 'layout' state.
-  // We keep 'layout' state persistent for other views (Today/Upcoming).
   useEffect(() => {
     // Fetch tasks when filterType changes
     if (user) {
@@ -113,20 +106,7 @@ const Dashboard = () => {
                 setFilters={setFilters}
               />
             )}
-            {isKanbanRoute && <div className="h-10"></div>} {/* Spacer if menu hidden, or just show filters? */}
-            {/* If on Kanban route, maybe we show filters but NOT layout toggle? 
-                DisplayMenu currently has everything together. 
-                Let's just show it. Layout toggle switching to "List" while on "/kanban" route?
-                If user switches to List on /kanban, presumably they want List view of Kanban tasks?
-                Or maybe we redirect?
-                The User didn't specify behavior for Kanban route interaction.
-                Let's assume DisplayMenu is available. If user clicks "List", should it go to Grid/List of those tasks?
-                Kanban route is basically "All tasks" (or filtered?). 
-                Actually `/kanban` usually shows all tasks.
-                For now, let's keep it simple: 
-                If `isKanbanRoute`, we render KanbanBoard.
-                If NOT `isKanbanRoute`, we render `TaskList` with `layout` state.
-            */}
+            {isKanbanRoute && <div className="h-10"></div>}
           </div>
 
           {!isKanbanRoute && (
