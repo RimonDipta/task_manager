@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { TaskContext } from "../context/TaskContext";
 import TaskItem from "./TaskItem";
+import TaskCard from "./TaskCard";
 import { isToday, isFuture, parseISO, isValid } from "date-fns";
 
 const TaskList = ({ filterType = "all", filters, layout = "list", limit, tasks: propTasks, onUpdate, onDelete }) => {
@@ -15,10 +16,20 @@ const TaskList = ({ filterType = "all", filters, layout = "list", limit, tasks: 
     .filter((task) => {
       // 1. Date Filtering (Today / Upcoming / Top Priorities)
       if (filterType === "today") {
-        if (!task.dueDate) return true;
+        if (!task.dueDate) return true; // Show backlog/undated
         const date = new Date(task.dueDate);
-        if (!isValid(date)) return true;
-        return isToday(date);
+        if (!isValid(date)) return true; // Invalid date = also backlog
+
+        // Show Today OR Past (Overdue) that are NOT completed
+        // If completed, only show if it was actually today? 
+        // User said: "If a tasks is overdue and not marked as done... Show them... And keep them on today"
+
+        if (task.completed) {
+          return isToday(date); // Only show completed if they were actually for today
+        }
+
+        // For uncompleted: Today OR Past
+        return isToday(date) || date < new Date().setHours(0, 0, 0, 0);
       }
 
       if (filterType === "top_priorities") {
@@ -116,12 +127,16 @@ const TaskList = ({ filterType = "all", filters, layout = "list", limit, tasks: 
           <p className="text-[var(--text-secondary)] font-medium">No tasks to show</p>
         </div>
       ) : (
-        <div className={layout === "board"
-          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        <div className={layout === "grid"
+          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start content-start"
           : "space-y-4"
         }>
           {displayTasks.map((task) => (
-            <TaskItem key={task._id} task={task} onUpdate={onUpdate} onDelete={onDelete} />
+            layout === "grid" ? (
+              <TaskCard key={task._id} task={task} />
+            ) : (
+              <TaskItem key={task._id} task={task} onUpdate={onUpdate} onDelete={onDelete} />
+            )
           ))}
         </div>
       )}

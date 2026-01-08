@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { SlidersHorizontal, ListTodo, Kanban, ChevronDown, Check, Flag } from "lucide-react";
+import { SlidersHorizontal, ListTodo, LayoutGrid, ChevronDown, Check, Flag } from "lucide-react";
 
 const DisplayMenu = ({ layout, setLayout, filters, setFilters }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -59,14 +59,14 @@ const DisplayMenu = ({ layout, setLayout, filters, setFilters }) => {
                                 List
                             </button>
                             <button
-                                onClick={() => setLayout("board")}
-                                className={`flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${layout === "board"
+                                onClick={() => setLayout("grid")}
+                                className={`flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${layout === "grid"
                                     ? "bg-[var(--bg-card)] text-[var(--primary-color)] shadow-sm ring-1 ring-[var(--border-color)]"
                                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                                     }`}
                             >
-                                <Kanban size={16} />
-                                Board
+                                <LayoutGrid size={16} />
+                                Grid
                             </button>
                         </div>
                     </div>

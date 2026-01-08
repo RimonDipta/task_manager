@@ -5,7 +5,7 @@ import TaskList from "../components/TaskList";
 import usePageTitle from "../hooks/usePageTitle";
 
 import DisplayMenu from "../components/DisplayMenu";
-import KanbanBoard from "../components/KanbanBoard";
+import DisplayMenu from "../components/DisplayMenu";
 import TaskSkeleton from "../components/TaskSkeleton";
 
 const Tasks = () => {
@@ -115,34 +115,23 @@ const Tasks = () => {
                     {/* Content Area */}
                     {loading && !initialLoaded ? (
                         // Skeleton Loading
-                        <div className={layout === 'board' ? "flex gap-6 overflow-hidden" : "space-y-4"}>
-                            {layout === 'board' ? (
-                                // Board Skeleton
-                                [1, 2, 3].map(i => (
-                                    <div key={i} className="flex-1 space-y-3 min-w-[300px]">
-                                        <div className="h-10 bg-[var(--bg-card)] rounded-xl border border-[var(--border-color)]"></div>
-                                        {[1, 2, 3].map(j => <TaskSkeleton key={j} />)}
-                                    </div>
-                                ))
+                        <div className={layout === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}>
+                            {layout === 'grid' ? (
+                                // Grid Skeleton
+                                [1, 2, 3, 4, 5, 6].map(i => <TaskSkeleton key={i} />)
                             ) : (
                                 // List Skeleton
                                 [1, 2, 3, 4, 5].map(i => <TaskSkeleton key={i} />)
                             )}
                         </div>
                     ) : (
-                        layout === 'board' ? (
-                            <div className="h-[calc(100vh-250px)]">
-                                <KanbanBoard filterType="all" filters={filters} tasks={tasks} />
-                            </div>
-                        ) : (
-                            <TaskList
-                                tasks={tasks}
-                                layout="list"
-                                filters={filters}
-                                onUpdate={handleUpdate}
-                                onDelete={handleDelete}
-                            />
-                        )
+                        <TaskList
+                            tasks={tasks}
+                            layout={layout}
+                            filters={filters}
+                            onUpdate={handleUpdate}
+                            onDelete={handleDelete}
+                        />
                     )}
 
                     {/* Loading Indicator / Observer Target */}
