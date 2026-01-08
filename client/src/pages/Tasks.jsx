@@ -5,7 +5,6 @@ import TaskList from "../components/TaskList";
 import usePageTitle from "../hooks/usePageTitle";
 
 import DisplayMenu from "../components/DisplayMenu";
-import DisplayMenu from "../components/DisplayMenu";
 import TaskSkeleton from "../components/TaskSkeleton";
 
 const Tasks = () => {
