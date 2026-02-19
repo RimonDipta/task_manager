@@ -5,6 +5,7 @@ import crypto from "crypto";
 import speakeasy from "speakeasy";
 import sendEmail from "../utils/sendEmail.js";
 import { generateEmailTemplate } from "../utils/emailTemplates.js";
+import qrcode from "qrcode";
 
 // Generate JWT
 const generateToken = (id) => {
@@ -86,7 +87,17 @@ export const loginUser = async (req, res) => {
 
     // Check for 2FA
     if (user.is2FAEnabled) {
-      // Generate 6-digit OTP
+      
+      if (user.twoFactorMethod === 'app') {
+          return res.json({
+            "2faRequired": true,
+            method: 'app',
+            email: user.email,
+            message: "Enter code from Authenticator App"
+          });
+      }
+
+      // Default to Email
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
       // Hash OTP
@@ -106,6 +117,7 @@ export const loginUser = async (req, res) => {
 
       return res.json({
         "2faRequired": true,
+        method: 'email',
         email: user.email,
         message: "2FA OTP sent to email"
       });
@@ -238,6 +250,85 @@ export const resendOtp = async (req, res) => {
 
 };
 
+// @desc Generate 2FA Secret (for App)
+// @route POST /api/auth/2fa/generate
+export const generate2FASecret = async (req, res) => {
+  const user = await User.findById(req.user.id);
+
+  const secret = speakeasy.generateSecret({
+    length: 20,
+    name: `Task Manager (${user.email})`
+  });
+
+  user.twoFactorSecret = secret;
+  await user.save();
+
+  // Generate QR Code Data URL
+  qrcode.toDataURL(secret.otpauth_url, (err, data_url) => {
+    if (err) {
+      return res.status(500).json({ message: "Error generating QR Code" });
+    }
+    res.json({
+      secret: secret.base32,
+      qrCode: data_url
+    });
+  });
+};
+
+// @desc Enable 2FA (Verify and Save)
+// @route POST /api/auth/2fa/enable
+export const enable2FA = async (req, res) => {
+  const { token, method } = req.body; // method: 'app' or 'email'
+  const user = await User.findById(req.user.id);
+
+  if (method === 'app') {
+    if (!user.twoFactorSecret || !user.twoFactorSecret.base32) {
+      return res.status(400).json({ message: "Please generate a secret first" });
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret.base32,
+      encoding: 'base32',
+      token
+    });
+
+    if (!verified) {
+      return res.status(400).json({ message: "Invalid Authenticator Code" });
+    }
+
+    user.is2FAEnabled = true;
+    user.twoFactorMethod = 'app';
+    await user.save();
+
+    res.json({ message: "2FA (Authenticator App) Enabled Successfully" });
+
+  } else if (method === 'email') {
+    // For email, we assume they have access since they are logged in.
+    // Ideally we re-verify, but for now we just switch.
+    user.is2FAEnabled = true;
+    user.twoFactorMethod = 'email';
+    user.twoFactorSecret = undefined; // Clear app secret if switching
+    await user.save();
+
+    res.json({ message: "2FA (Email) Enabled Successfully" });
+  } else {
+    res.status(400).json({ message: "Invalid 2FA method" });
+  }
+};
+
+// @desc Disable 2FA
+// @route POST /api/auth/2fa/disable
+export const disable2FA = async (req, res) => {
+  const user = await User.findById(req.user.id);
+
+  user.is2FAEnabled = false;
+  user.twoFactorMethod = 'email'; // Reset to default
+  user.twoFactorSecret = undefined;
+  await user.save();
+
+  res.json({ message: "2FA Disabled Successfully" });
+};
+
 // @desc Get current user
 // @route GET /api/auth/me
 export const getMe = async (req, res) => {
@@ -247,5 +338,7 @@ export const getMe = async (req, res) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    is2FAEnabled: user.is2FAEnabled,
+    twoFactorMethod: user.twoFactorMethod
   });
 };

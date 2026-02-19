@@ -5,6 +5,9 @@ import {
   verifyOtp,
   resendOtp,
   getMe,
+  generate2FASecret,
+  enable2FA,
+  disable2FA
 } from "../controllers/authController.js";
 import {
   forgotPassword,
@@ -23,5 +26,10 @@ router.post("/forgot-password", forgotPassword);
 router.post("/verify-reset-otp", verifyResetOtp);
 router.post("/reset-password", resetPassword);
 router.get("/me", protect, getMe);
+
+// 2FA Management
+router.post("/2fa/generate", protect, generate2FASecret);
+router.post("/2fa/enable", protect, enable2FA);
+router.post("/2fa/disable", protect, disable2FA);
 
 export default router;
