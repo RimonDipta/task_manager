@@ -19,19 +19,15 @@ const TwoFactorSetupModal = ({ isOpen, onClose }) => {
     const handleMethodSelect = async (selectedMethod) => {
         setMethod(selectedMethod);
         if (selectedMethod === 'email') {
-            // Instant enable for email
             try {
                 setLoading(true);
-                // We'll use the existing toggle endpoint which defaults to email if no params or just enables it.
-                // But wait, our toggle endpoint logic might need update if we want to explicitly set method.
-                // For now, let's assume toggle enables email by default or we send method if we update backend.
-                // Actually, let's just use toggle. Backend defaults to email if not set.
-                const res = await api.put("/users/2fa");
+                // Backend: /api/auth/2fa/enable with method='email'
+                const res = await api.post("/auth/2fa/enable", { method: 'email' });
                 setUser({ ...user, is2FAEnabled: true, twoFactorMethod: 'email' });
                 showToast("2FA Enabled via Email", "success");
                 onClose();
             } catch (err) {
-                showToast("Failed to enable 2FA", "error");
+                showToast(err.response?.data?.message || "Failed to enable 2FA", "error");
             } finally {
                 setLoading(false);
             }
@@ -39,10 +35,10 @@ const TwoFactorSetupModal = ({ isOpen, onClose }) => {
             // App: Fetch QR
             try {
                 setLoading(true);
-                const res = await api.post("/users/2fa/setup");
+                const res = await api.post("/auth/2fa/generate");
                 setQrCode(res.data.qrCode);
                 setSecret(res.data.secret);
-                setStep(2);
+                setStep(2); // Move to Scan step
             } catch (err) {
                 showToast("Failed to generate QR Code", "error");
             } finally {
@@ -54,12 +50,16 @@ const TwoFactorSetupModal = ({ isOpen, onClose }) => {
     const handleVerifySetup = async () => {
         try {
             setLoading(true);
-            const res = await api.post("/users/2fa/verify-setup", { token, secret });
+            // Verify and Enable
+            const res = await api.post("/auth/2fa/enable", { 
+                token, 
+                method: 'app' 
+            });
             setUser({ ...user, is2FAEnabled: true, twoFactorMethod: 'app' });
             showToast("2FA Enabled via Authenticator App", "success");
             onClose();
         } catch (err) {
-            showToast(err.response?.data?.message || "Invalid Code", "error");
+            showToast(err.response?.data?.message || "Invalid Authenticator Code", "error");
         } finally {
             setLoading(false);
         }

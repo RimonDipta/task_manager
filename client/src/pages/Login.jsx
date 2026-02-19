@@ -15,6 +15,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState("");
   const [is2FABlocked, setIs2FABlocked] = useState(false);
+  const [twoFactorMessage, setTwoFactorMessage] = useState("");
   const { setUser } = useContext(AuthContext);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,7 @@ const Login = () => {
 
         if (res.data && res.data['2faRequired']) {
           setIs2FABlocked(true);
+          setTwoFactorMessage(res.data.message || "Enter your 2FA code");
           setLoading(false);
           showToast(res.data.message, "info");
           return;
@@ -83,7 +85,7 @@ const Login = () => {
             {is2FABlocked ? "Enter Code" : "Welcome back"}
           </h2>
           <p className="text-[var(--text-secondary)] mt-2">
-            {is2FABlocked ? "We sent a 6-digit code to your email" : "Sign in to your account to continue"}
+            {is2FABlocked ? twoFactorMessage : "Sign in to your account to continue"}
           </p>
         </div>
 
