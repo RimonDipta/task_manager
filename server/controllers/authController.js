@@ -253,26 +253,31 @@ export const resendOtp = async (req, res) => {
 // @desc Generate 2FA Secret (for App)
 // @route POST /api/auth/2fa/generate
 export const generate2FASecret = async (req, res) => {
-  const user = await User.findById(req.user);
-
-  const secret = speakeasy.generateSecret({
-    length: 20,
-    name: `Task Manager (${user.email})`
-  });
-
-  user.twoFactorSecret = secret;
-  await user.save();
-
-  // Generate QR Code Data URL
-  qrcode.toDataURL(secret.otpauth_url, (err, data_url) => {
-    if (err) {
-      return res.status(500).json({ message: "Error generating QR Code" });
+  try {
+    const user = await User.findById(req.user);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    const secret = speakeasy.generateSecret({
+      length: 20,
+      name: `Task Manager (${user.email})`
+    });
+
+    user.twoFactorSecret = secret;
+    await user.save();
+
+    // Generate QR Code Data URL
+    const qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
+
     res.json({
       secret: secret.base32,
-      qrCode: data_url
+      qrCode: qrCodeUrl
     });
-  });
+  } catch (error) {
+    console.error("Error generating 2FA secret:", error);
+    res.status(500).json({ message: "Error generating QR Code" });
+  }
 };
 
 // @desc Enable 2FA (Verify and Save)
