@@ -253,7 +253,7 @@ export const resendOtp = async (req, res) => {
 // @desc Generate 2FA Secret (for App)
 // @route POST /api/auth/2fa/generate
 export const generate2FASecret = async (req, res) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user);
 
   const secret = speakeasy.generateSecret({
     length: 20,
@@ -279,7 +279,7 @@ export const generate2FASecret = async (req, res) => {
 // @route POST /api/auth/2fa/enable
 export const enable2FA = async (req, res) => {
   const { token, method } = req.body; // method: 'app' or 'email'
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user);
 
   if (method === 'app') {
     if (!user.twoFactorSecret || !user.twoFactorSecret.base32) {
@@ -319,7 +319,7 @@ export const enable2FA = async (req, res) => {
 // @desc Disable 2FA
 // @route POST /api/auth/2fa/disable
 export const disable2FA = async (req, res) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user);
 
   user.is2FAEnabled = false;
   user.twoFactorMethod = 'email'; // Reset to default
@@ -332,7 +332,7 @@ export const disable2FA = async (req, res) => {
 // @desc Get current user
 // @route GET /api/auth/me
 export const getMe = async (req, res) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user);
 
   res.json({
     _id: user._id,

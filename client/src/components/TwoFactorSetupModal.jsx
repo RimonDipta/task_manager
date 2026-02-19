@@ -36,11 +36,10 @@ const TwoFactorSetupModal = ({ isOpen, onClose }) => {
             try {
                 setLoading(true);
                 const res = await api.post("/auth/2fa/generate");
-                setQrCode(res.data.qrCode);
-                setSecret(res.data.secret);
                 setStep(2); // Move to Scan step
             } catch (err) {
-                showToast("Failed to generate QR Code", "error");
+                console.error("2FA Setup Error:", err);
+                showToast(err.response?.data?.message || "Failed to generate QR Code", "error");
             } finally {
                 setLoading(false);
             }
