@@ -352,6 +352,11 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}
             />
+
+            <TwoFactorSetupModal 
+                isOpen={showTwoFactorSetup} 
+                onClose={() => setShowTwoFactorSetup(false)} 
+            />
         </>
     );
 };
