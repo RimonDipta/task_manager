@@ -1,19 +1,45 @@
 import { Resend } from 'resend';
 import nodemailer from 'nodemailer';
 
+// Singleton Transporter for Nodemailer
+let transporter = null;
+
+const createTransporter = () => {
+    if (!transporter && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465, // SSL
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+        // Verify connection configuration
+        transporter.verify(function (error, success) {
+            if (error) {
+                console.log("❌ Nodemailer Verification Failed:", error);
+                transporter = null; // Reset if failed
+            } else {
+                console.log("✅ Nodemailer is ready to take our messages");
+            }
+        });
+    }
+    return transporter;
+};
+
+// Initialize on load
+createTransporter();
+
 const sendEmail = async (options) => {
     let emailSent = false;
 
     // ==========================================
     // OPTION 1: Brevo (Sendinblue) - HTTP API
     // ==========================================
-    // Best for Render/Cloud because it uses HTTPS (Port 443), not SMTP.
-    // 1. Sign up at brevo.com
-    // 2. Get API Key (xkeysib-...)
-    // 3. Set BREVO_API_KEY in .env
     if (process.env.BREVO_API_KEY) {
         try {
-            console.log(`Attempting to send email via Brevo API to ${options.email}...`);
+            // console.log(`Attempting to send email via Brevo API to ${options.email}...`);
 
             const response = await fetch('https://api.brevo.com/v3/smtp/email', {
                 method: 'POST',
@@ -40,12 +66,12 @@ const sendEmail = async (options) => {
             }
 
             const data = await response.json();
-            console.log("✅ Message sent successfully via Brevo:", data.messageId);
+            console.log(`✅ [Email Sent] via Brevo to ${options.email}`);
             emailSent = true;
             return data;
 
         } catch (error) {
-            console.error("❌ Brevo Send Failed:", error);
+            console.error("❌ Brevo Send Failed:", error.message);
             // Fallthrough to others
         }
     }
@@ -53,28 +79,25 @@ const sendEmail = async (options) => {
     // ==========================================
     // OPTION 2: Nodemailer (Gmail/SMTP)
     // ==========================================
-    if (!emailSent && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-        try {
-            console.log(`Attempting to send email via Nodemailer (Gmail)...`);
-            const transporter = nodemailer.createTransport({
-                host: 'smtp.gmail.com',
-                port: 465, // SSL
-                secure: true,
-                auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-            });
-
-            const info = await transporter.sendMail({
-                from: `${process.env.FROM_NAME || 'Task Manager'} <${process.env.FROM_EMAIL || process.env.EMAIL_USER}>`,
-                to: options.email,
-                subject: options.subject,
-                html: options.html,
-                text: options.message
-            });
-            console.log("✅ Message sent successfully via Nodemailer:", info.messageId);
-            emailSent = true;
-            return info;
-        } catch (error) {
-            console.error("❌ Nodemailer Send Failed:", error.message);
+    if (!emailSent) {
+        const mailTransport = transporter || createTransporter();
+        
+        if (mailTransport) {
+             try {
+                // console.log(`Attempting to send email via Nodemailer (Gmail)...`);
+                const info = await mailTransport.sendMail({
+                    from: `${process.env.FROM_NAME || 'Task Manager'} <${process.env.FROM_EMAIL || process.env.EMAIL_USER}>`,
+                    to: options.email,
+                    subject: options.subject,
+                    html: options.html,
+                    text: options.message
+                });
+                console.log(`✅ [Email Sent] via Nodemailer to ${options.email}`);
+                emailSent = true;
+                return info;
+            } catch (error) {
+                console.error("❌ Nodemailer Send Failed:", error.message);
+            }
         }
     }
 
@@ -84,7 +107,6 @@ const sendEmail = async (options) => {
     if (!emailSent && process.env.RESEND_API_KEY) {
         try {
             const resend = new Resend(process.env.RESEND_API_KEY);
-            // Resend requires verified domain or specific sender
             let fromAddress = process.env.FROM_EMAIL || 'onboarding@resend.dev';
             if (fromAddress.includes('gmail.com')) fromAddress = 'onboarding@resend.dev';
 
@@ -97,7 +119,7 @@ const sendEmail = async (options) => {
             });
 
             if (error) throw new Error(error.message);
-            console.log("✅ Message sent successfully via Resend:", data);
+            console.log(`✅ [Email Sent] via Resend to ${options.email}`);
             return data;
         } catch (err) {
             console.error("❌ Resend Send Failed:", err.message);
@@ -105,7 +127,10 @@ const sendEmail = async (options) => {
     }
 
     if (!emailSent) {
-        throw new Error("All email methods failed. Configure BREVO_API_KEY, EMAIL_USER/PASS, or RESEND_API_KEY.");
+        console.error("❌ ALL EMAIL METHODS FAILED. Check server logs.");
+        // We do NOT throw error here in fire-and-forget mode to avoid crashing the background process
+        // unless we want to handle it in the caller.
+        throw new Error("All email methods failed.");
     }
 };
 

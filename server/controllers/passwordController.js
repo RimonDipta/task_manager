@@ -26,21 +26,20 @@ export const forgotPassword = async (req, res) => {
 
   await user.save();
 
-  try {
-    await sendEmail({
-      email: user.email,
-      subject: "Task Manager - Password Reset OTP",
-      message: `Your password reset code is: ${otp}`,
-      html: generateEmailTemplate(otp, "reset") // Assumption: template 'reset' exists or falls back
-    });
 
-    res.json({ message: "Password reset OTP sent to email" });
-  } catch (err) {
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-    await user.save();
-    return res.status(500).json({ message: "Email could not be sent" });
-  }
+  sendEmail({
+    email: user.email,
+    subject: "Task Manager - Password Reset OTP",
+    message: `Your password reset code is: ${otp}`,
+    html: generateEmailTemplate(otp, "reset") // Assumption: template 'reset' exists or falls back
+  }).catch(err => {
+      console.error("❌ Background Email Error (Forgot Password):", err.message);
+      // Optional: Cleanup if email barely failed, but hard to do in async. 
+      // Better to let token expire.
+  });
+
+  res.json({ message: "Password reset OTP sent to email" });
+
 };
 
 // @desc Verify Reset OTP

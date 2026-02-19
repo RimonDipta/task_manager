@@ -45,23 +45,22 @@ export const registerUser = async (req, res) => {
     emailVerificationExpire: Date.now() + 10 * 60 * 1000, // 10 minutes
   });
 
-  try {
-    await sendEmail({
-      email: user.email,
-      subject: "Task Manager - Email Verification",
-      message: `Your verification code is: ${otp}. It expires in 10 minutes.`,
-      html: generateEmailTemplate(otp, "verification")
-    });
 
-    res.status(201).json({
-      message: "Registration successful. Please verify your email with the OTP sent.",
-      email: user.email,
-    });
-  } catch (err) {
-    console.error("Email Error:", err);
-    await user.deleteOne(); // Rollback user creation
-    return res.status(500).json({ message: `Email failed: ${err.message}` });
-  }
+  // Fire and forget email
+  sendEmail({
+    email: user.email,
+    subject: "Task Manager - Email Verification",
+    message: `Your verification code is: ${otp}. It expires in 10 minutes.`,
+    html: generateEmailTemplate(otp, "verification")
+  }).catch(err => {
+      console.error("❌ Background Email Error (Register):", err.message);
+  });
+
+  res.status(201).json({
+    message: "Registration successful. Please verify your email with the OTP sent.",
+    email: user.email,
+  });
+
 };
 
 // @desc Login user
@@ -96,23 +95,21 @@ export const loginUser = async (req, res) => {
       user.emailVerificationExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
       await user.save();
 
-      try {
-        await sendEmail({
-          email: user.email,
-          subject: "Task Manager - 2FA Code",
-          message: `Your 2FA login code is: ${otp}`,
-          html: generateEmailTemplate(otp, "2fa")
-        });
 
-        return res.json({
-          "2faRequired": true,
-          email: user.email,
-          message: "2FA OTP sent to email"
-        });
-      } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Email could not be sent. Please try again." });
-      }
+      // Fire and forget email
+      sendEmail({
+        email: user.email,
+        subject: "Task Manager - 2FA Code",
+        message: `Your 2FA login code is: ${otp}`,
+        html: generateEmailTemplate(otp, "2fa")
+      }).catch(err => console.error("❌ Background Email Error (Login 2FA):", err.message));
+
+      return res.json({
+        "2faRequired": true,
+        email: user.email,
+        message: "2FA OTP sent to email"
+      });
+
     }
 
     res.json({
@@ -229,19 +226,16 @@ export const resendOtp = async (req, res) => {
   user.emailVerificationExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
   await user.save();
 
-  try {
-    await sendEmail({
-      email: user.email,
-      subject: "Task Manager - New OTP",
-      message: `Your new verification code is: ${otp}`,
-      html: generateEmailTemplate(otp, "verification")
-    });
 
-    res.json({ message: "OTP resent successfully" });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Email could not be sent" });
-  }
+  sendEmail({
+    email: user.email,
+    subject: "Task Manager - New OTP",
+    message: `Your new verification code is: ${otp}`,
+    html: generateEmailTemplate(otp, "verification")
+  }).catch(err => console.error("❌ Background Email Error (Resend OTP):", err.message));
+
+  res.json({ message: "OTP resent successfully" });
+
 };
 
 // @desc Get current user
