@@ -329,9 +329,17 @@ const Sidebar = ({
             }`}
           >
             <div
-              className={`w-7 h-7 rounded-full bg-[var(--primary-light)]/20 flex items-center justify-center text-[var(--primary-color)] font-bold text-xs shrink-0`}
+              className={`w-7 h-7 rounded-full bg-[var(--primary-light)]/20 flex items-center justify-center text-[var(--primary-color)] font-bold text-xs shrink-0 overflow-hidden border border-[var(--border-color)]`}
             >
-              {user?.name?.charAt(0).toUpperCase()}
+              {user?.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user?.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                user?.name?.charAt(0).toUpperCase()
+              )}
             </div>
 
             {!isCollapsed && (
