@@ -35,7 +35,16 @@ const TwoFactorSetupModal = ({ isOpen, onClose }) => {
             // App: Fetch QR
             try {
                 setLoading(true);
+                console.log("Requesting QR Code...");
                 const res = await api.post("/auth/2fa/generate");
+                console.log("QR Code Response:", res.data);
+                
+                if (!res.data.qrCode) {
+                    throw new Error("QR Code missing from response");
+                }
+
+                setQrCode(res.data.qrCode);
+                setSecret(res.data.secret);
                 setStep(2); // Move to Scan step
             } catch (err) {
                 console.error("2FA Setup Error:", err);
@@ -126,12 +135,33 @@ const TwoFactorSetupModal = ({ isOpen, onClose }) => {
                                 </p>
                             </div>
 
-                            <div className="flex justify-center p-4 bg-white rounded-xl w-fit mx-auto border border-gray-200">
-                                {qrCode ? (
-                                    <img src={qrCode} alt="QR Code" className="w-48 h-48" />
+                            <div className="flex justify-center p-4 bg-white rounded-xl w-fit mx-auto border border-gray-200 min-h-[200px] flex-col items-center">
+                                {loading ? (
+                                    <div className="flex flex-col items-center justify-center h-48 text-[var(--text-secondary)]">
+                                        <Loader2 className="animate-spin mb-2" size={32} />
+                                        <span className="text-xs">Generating QR...</span>
+                                    </div>
+                                ) : qrCode ? (
+                                    <img 
+                                        src={qrCode} 
+                                        alt="QR Code" 
+                                        className="w-48 h-48" 
+                                        onError={(e) => {
+                                            console.error("QR Image Load Error", e);
+                                            e.target.style.display = 'none';
+                                            showToast("Failed to load QR image", "error");
+                                        }}
+                                    />
                                 ) : (
-                                    <div className="w-48 h-48 flex items-center justify-center text-gray-400">
-                                        <Loader2 className="animate-spin" size={32} />
+                                    <div className="flex flex-col items-center justify-center h-48 text-red-500 gap-2">
+                                        <X size={32} />
+                                        <span className="text-sm font-medium">Failed to load QR Code</span>
+                                        <button 
+                                            onClick={() => handleMethodSelect('app')}
+                                            className="text-xs px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                                        >
+                                            Retry
+                                        </button>
                                     </div>
                                 )}
                             </div>
