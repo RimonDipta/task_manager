@@ -149,6 +149,29 @@ const Login = () => {
                 required
                 autoFocus
               />
+              <div className="mt-4 text-center">
+                 <button 
+                    type="button" 
+                    onClick={async () => {
+                        try {
+                            setLoading(true);
+                            // Call login again with useBackup: true
+                            const res = await loginUser({ email, password, useBackup: true });
+                            if (res.data && res.data['2faRequired']) {
+                                setTwoFactorMessage("Backup verification code sent to your email");
+                                showToast("Backup code sent to email", "success");
+                            }
+                        } catch (err) {
+                            showToast("Failed to send backup code");
+                        } finally {
+                            setLoading(false);
+                        }
+                    }}
+                    className="text-sm text-[var(--primary-color)] hover:underline"
+                 >
+                    Lost access to Authenticator?
+                 </button>
+              </div>
             </div>
           )}
 

@@ -85,10 +85,12 @@ export const loginUser = async (req, res) => {
 
   if (user && (await bcrypt.compare(password, user.password))) {
 
-    // Check for 2FA
+      // Check for 2FA
     if (user.is2FAEnabled) {
       
-      if (user.twoFactorMethod === 'app') {
+      const useBackup = req.body.useBackup;
+
+      if (user.twoFactorMethod === 'app' && !useBackup) {
           return res.json({
             "2faRequired": true,
             method: 'app',
@@ -97,7 +99,7 @@ export const loginUser = async (req, res) => {
           });
       }
 
-      // Default to Email
+      // Default to Email OR Backup requested
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
       // Hash OTP
@@ -149,17 +151,33 @@ export const verifyOtp = async (req, res) => {
 
   // Handle App Verification
   if (user.is2FAEnabled && user.twoFactorMethod === 'app') {
-    const verified = speakeasy.totp.verify({
-      secret: user.twoFactorSecret.base32,
-      encoding: 'base32',
-      token: otp
-    });
-
-    if (!verified) {
-      return res.status(400).json({ message: "Invalid Authenticator Code" });
+    
+    // Check if user is trying to use backup OTP (Email)
+    let isBackupValid = false;
+    if (user.otp && user.emailVerificationExpire > Date.now()) {
+        const isMatch = await bcrypt.compare(otp, user.otp);
+        if (isMatch) {
+            isBackupValid = true;
+             // Clear OTP after use
+            user.otp = undefined;
+            user.emailVerificationExpire = undefined;
+            await user.save();
+        }
     }
 
-    // Valid
+    if (!isBackupValid) {
+        const verified = speakeasy.totp.verify({
+        secret: user.twoFactorSecret.base32,
+        encoding: 'base32',
+        token: otp
+        });
+
+        if (!verified) {
+        return res.status(400).json({ message: "Invalid Authenticator Code" });
+        }
+    }
+
+    // Valid (either App or Backup)
     return res.json({
       _id: user._id,
       name: user.name,
