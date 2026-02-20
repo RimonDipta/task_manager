@@ -246,17 +246,16 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                     </div>
                                                 </div>
                                                 <button
-                                                    onClick={() => {
+                                                    onClick={async () => {
                                                         if (user?.is2FAEnabled) {
-                                                            // Disable directly
-                                                            api.post("/auth/2fa/disable").then(res => {
+                                                            try {
+                                                                await api.post("/auth/2fa/disable");
                                                                 setUser({ ...user, is2FAEnabled: false, twoFactorMethod: 'email' });
                                                                 showToast("Two-Factor Authentication Disabled", "info");
-                                                            }).catch(err => {
+                                                            } catch (err) {
                                                                 showToast("Failed to disable 2FA", "error");
-                                                            });
+                                                            }
                                                         } else {
-                                                            // Open Setup Modal
                                                             setShowTwoFactorSetup(true);
                                                         }
                                                     }}
