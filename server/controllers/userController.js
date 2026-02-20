@@ -41,9 +41,35 @@ export const updateUserProfile = async (req, res) => {
             _id: updatedUser._id,
             name: updatedUser.name,
             email: updatedUser.email,
+            profilePicture: updatedUser.profilePicture,
         });
     } else {
         res.status(404).json({ message: "User not found" });
+    }
+};
+
+// @desc Upload Profile Picture
+// @route POST /api/users/profile-picture
+export const uploadProfilePicture = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+
+        const user = await User.findById(req.user);
+        if (user) {
+            user.profilePicture = req.file.path; // Cloudinary URL
+            await user.save();
+            res.json({ 
+                message: "Profile picture updated", 
+                profilePicture: user.profilePicture 
+            });
+        } else {
+            res.status(404).json({ message: "User not found" });
+        }
+    } catch (error) {
+        console.error("Upload Error:", error);
+        res.status(500).json({ message: "Image upload failed" });
     }
 };
 

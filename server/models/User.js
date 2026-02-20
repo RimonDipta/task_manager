@@ -3,8 +3,10 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema(
   {
     name: String,
+    name: String,
     email: { type: String, unique: true },
     password: String,
+    profilePicture: { type: String, default: "" },
 
     isVerified: {
       type: Boolean,
