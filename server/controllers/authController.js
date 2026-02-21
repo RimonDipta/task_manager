@@ -130,8 +130,9 @@ export const loginUser = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      profilePicture: user.profilePicture, // Include profile picture
+      profilePicture: user.profilePicture,
       is2FAEnabled: user.is2FAEnabled,
+      twoFactorMethod: user.twoFactorMethod,
       token: generateToken(user._id),
     });
   } else {
@@ -183,6 +184,8 @@ export const verifyOtp = async (req, res) => {
       name: user.name,
       email: user.email,
       profilePicture: user.profilePicture,
+      is2FAEnabled: user.is2FAEnabled,
+      twoFactorMethod: user.twoFactorMethod,
       token: generateToken(user._id),
     });
   }
@@ -207,6 +210,8 @@ export const verifyOtp = async (req, res) => {
       name: user.name,
       email: user.email,
       profilePicture: user.profilePicture,
+      is2FAEnabled: user.is2FAEnabled,
+      twoFactorMethod: user.twoFactorMethod,
       token: generateToken(user._id),
       message: "Email verified successfully"
     });
@@ -227,6 +232,8 @@ export const verifyOtp = async (req, res) => {
       name: user.name,
       email: user.email,
       profilePicture: user.profilePicture,
+      is2FAEnabled: user.is2FAEnabled,
+      twoFactorMethod: user.twoFactorMethod,
       token: generateToken(user._id),
     });
   }
