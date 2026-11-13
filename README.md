@@ -133,6 +133,22 @@ npm run dev
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:5000
 
+### 🌱 Demo Account
+
+To explore the app without registering a real account, seed a demo user with sample projects and tasks:
+
+```bash
+cd server
+npm run seed
+```
+
+This creates (or resets) a pre-verified demo account:
+
+- **Email**: `demo@doora.app`
+- **Password**: `Demo1234!`
+
+Safe to re-run — it only ever touches this one demo account's data, never anyone else's. Requires `MONGO_URI` to be set in `server/.env`.
+
 ## 📦 Building for Production
 
 To build the frontend for deployment:
