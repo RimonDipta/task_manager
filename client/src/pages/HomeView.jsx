@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { TaskContext } from "../context/TaskContext";
 import TaskList from "../components/TaskList";
+import TaskSkeleton from "../components/TaskSkeleton";
 import Analytics from "../components/Analytics";
 import AddProjectModal from "../components/AddProjectModal";
 import * as taskApi from "../api/taskApi";
@@ -71,6 +72,89 @@ const HomeView = () => {
             cancelled = true;
         };
     }, [user]);
+
+    // "Top Priorities": overdue tasks first, then due-today tasks, then any
+    // other P1 task, then everything else — soonest due date wins ties.
+    // This page keeps its own list (not TaskContext's) since nothing else
+    // on Home ever populates the shared context list.
+    const [topTasks, setTopTasks] = useState([]);
+    const [topTasksLoading, setTopTasksLoading] = useState(true);
+
+    const rankTask = (task) => {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
+        const due = task.dueDate ? new Date(task.dueDate) : null;
+
+        let bucket = 3; // everything else
+        if (due && due < todayStart) bucket = 0; // overdue
+        else if (due && due >= todayStart && due <= todayEnd) bucket = 1; // due today
+        else if (task.priority === "p1") bucket = 2; // upcoming, urgent
+
+        const priorityRank = { p1: 0, p2: 1, p3: 2, p4: 3 }[task.priority] ?? 3;
+        return { bucket, priorityRank, due };
+    };
+
+    useEffect(() => {
+        if (!user) return;
+        let cancelled = false;
+
+        const loadTopTasks = async () => {
+            setTopTasksLoading(true);
+            try {
+                const res = await taskApi.getTasks(user.token, { filter: "active", limit: 100 });
+                if (cancelled) return;
+
+                const ranked = res.data.tasks
+                    .map((task) => ({ task, ...rankTask(task) }))
+                    .sort((a, b) => {
+                        if (a.bucket !== b.bucket) return a.bucket - b.bucket;
+                        if (a.priorityRank !== b.priorityRank) return a.priorityRank - b.priorityRank;
+                        if (a.due && b.due) return a.due - b.due;
+                        if (a.due) return -1;
+                        if (b.due) return 1;
+                        return 0;
+                    })
+                    .slice(0, 3)
+                    .map((r) => r.task);
+
+                setTopTasks(ranked);
+            } catch (err) {
+                console.error("Failed to load top priority tasks", err);
+            } finally {
+                if (!cancelled) setTopTasksLoading(false);
+            }
+        };
+
+        loadTopTasks();
+        return () => {
+            cancelled = true;
+        };
+    }, [user]);
+
+    const handleTopTaskUpdate = async (id, data) => {
+        try {
+            const res = await taskApi.updateTask(id, data, user.token);
+            setTopTasks((prev) => {
+                // A completed task no longer belongs in an "active tasks" list.
+                if (data.completed) return prev.filter((t) => t._id !== id);
+                return prev.map((t) => (t._id === id ? res.data : t));
+            });
+            return res.data;
+        } catch (err) {
+            console.error("Failed to update task", err);
+        }
+    };
+
+    const handleTopTaskDelete = async (id) => {
+        try {
+            setTopTasks((prev) => prev.filter((t) => t._id !== id));
+            await taskApi.deleteTask(id, user.token);
+        } catch (err) {
+            console.error("Failed to delete task", err);
+        }
+    };
 
     const statCards = [
         { label: "Total Tasks", value: stats?.total, icon: ListChecks, tone: "text-indigo-500 bg-indigo-500/10" },
@@ -154,8 +238,22 @@ const HomeView = () => {
                     </div>
 
                     <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] overflow-hidden p-4">
-                        {/* Show top 3 tasks (Today + Overdue + Future P1, sorted by Priority) */}
-                        <TaskList filterType="top_priorities" embedded={true} limit={3} />
+                        {topTasksLoading ? (
+                            <div className="space-y-4">
+                                {[1, 2, 3].map((i) => <TaskSkeleton key={i} />)}
+                            </div>
+                        ) : topTasks.length === 0 ? (
+                            <p className="text-sm text-[var(--text-tertiary)] text-center py-6">
+                                Nothing urgent — you&apos;re all caught up.
+                            </p>
+                        ) : (
+                            <TaskList
+                                tasks={topTasks}
+                                embedded={true}
+                                onUpdate={handleTopTaskUpdate}
+                                onDelete={handleTopTaskDelete}
+                            />
+                        )}
                     </div>
                 </div>
 
