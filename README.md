@@ -1,17 +1,30 @@
-# Task Manager Application
+# Doora — Task Manager Application
 
-A modern, full-stack task management application built with the MERN stack. Features secure authentication with 2FA, email verifications, and a beautiful, responsive user interface.
+A modern, full-stack productivity platform built with the MERN stack. Features secure authentication with 2FA, email verification, task and project management, multiple task views, a Pomodoro focus timer, analytics, and a polished, responsive UI.
 
 ## 🚀 Features
 
-- **Authentication**: Secure user registration and login using JWT.
-- **Security**: 
-  - Email OTP Verification for new accounts.
-  - Two-Factor Authentication (2FA) support (Authenticator App & Email).
-  - Secure password hashing with bcrypt.
-- **Task Management**: Create, read, update, and delete tasks effectively.
-- **Responsive UI**: Built with Tailwind CSS for a seamless experience across all devices.
-- **Modern Tech**: Powered by Vite and React for high performance.
+- **Authentication & Security**
+  - JWT-based registration and login, with email OTP verification for new accounts
+  - Two-Factor Authentication (Authenticator App & Email)
+  - Secure password hashing with bcrypt, rate-limited auth endpoints, and `helmet` security headers
+- **Task Management**
+  - Full task fields: priority, due dates, tags, subtasks, recurrence, reminders, time tracking
+  - Statuses: To Do, In Progress, In Review, Done, and Archived
+  - Bulk actions (complete, archive, delete) across selected tasks
+  - Multiple views: List, Grid, Kanban (drag-and-drop), Priority, and monthly Calendar
+- **Projects**
+  - Create, edit, archive/restore, and delete projects
+  - Per-project detail page with live progress, overdue count, and task list
+  - Projects overview page with per-project stats
+- **Productivity Tools**
+  - Pomodoro-style Focus Mode that keeps running across navigation and logs time to the task
+  - Notifications for overdue and due-today tasks
+  - Activity history timeline of task creation/completion
+  - Global search (Ctrl/Cmd+K) across tasks, projects, and pages
+- **Analytics**: real metrics (no mock data) with a selectable 7/14/30-day range
+- **Settings**: profile, theme (including dark/system/custom themes), default landing view, calendar week-start, 2FA, password change, account deletion
+- **Responsive UI**: built with Tailwind CSS, dark-first design, works across desktop and mobile
 
 ## 🛠️ Technology Stack
 
@@ -130,3 +143,21 @@ npm run build
 ```
 
 This will create a `dist` folder in the client directory.
+
+## 🚢 Deployment
+
+This app can deploy as two services (recommended) or as a single combined service.
+
+### Option A: Two services (e.g. Render — see `render.yaml`)
+
+- **Server**: deploy `server/` as a Node web service (`npm install` / `npm start`). Set the environment variables from `server/.env.example` in the host's dashboard — never commit a real `.env` file.
+- **Client**: deploy `client/` as a static site (`npm install && npm run build`, publish `dist/`). Set `VITE_API_URL` to the deployed server's `/api` URL, and configure a rewrite of `/*` → `/index.html` for client-side routing.
+- A `render.yaml` is included at the repo root as a ready-to-use blueprint for Render; adapt it for other hosts (Railway, Fly.io, etc.) as needed.
+
+### Option B: Single service
+
+Set `NODE_ENV=production` and run `npm run build` in `client/` before starting the server — `server.js` serves the built client files and falls back to `index.html` for client-side routes when `NODE_ENV=production`. `CLIENT_URL_PROD` should still point at wherever the service is reachable, since it's used for CORS.
+
+### Required environment variables
+
+See `server/.env.example` for the full list (Mongo connection string, JWT secret, email credentials for OTP/2FA, and optional Cloudinary credentials for profile picture uploads).

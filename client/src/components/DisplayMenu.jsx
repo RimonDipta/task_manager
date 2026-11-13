@@ -25,11 +25,6 @@ const DisplayMenu = ({ layout, setLayout, filters, setFilters }) => {
         }));
     };
 
-    const activeSortLabel = {
-        newest: "Newest First",
-        oldest: "Oldest First",
-        priority: "Priority First"
-    }[filters.sort] || "Sort By";
 
     return (
         <div className="relative" ref={menuRef}>

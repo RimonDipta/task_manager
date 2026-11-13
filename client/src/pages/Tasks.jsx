@@ -115,6 +115,29 @@ const Tasks = () => {
         }
     };
 
+    // This page keeps its own paginated `tasks` state (not TaskContext's), so
+    // bulk actions need to update it directly or the list would go stale.
+    const handleBulkUpdate = async (ids, data) => {
+        const idSet = new Set(ids);
+        try {
+            const updated = await taskApi.bulkUpdateTasks(ids, data, user.token);
+            const updatedById = new Map(updated.data.map((t) => [t._id, t]));
+            setTasks(prev => prev.map(t => (idSet.has(t._id) ? updatedById.get(t._id) || t : t)));
+        } catch (error) {
+            console.error("Failed to bulk update tasks", error);
+        }
+    };
+
+    const handleBulkDelete = async (ids) => {
+        const idSet = new Set(ids);
+        try {
+            setTasks(prev => prev.filter(t => !idSet.has(t._id)));
+            await taskApi.bulkDeleteTasks(ids, user.token);
+        } catch (error) {
+            console.error("Failed to bulk delete tasks", error);
+        }
+    };
+
     return (
         <div className="h-full">
             <main className="flex-1 overflow-y-auto p-4 sm:p-8 h-full custom-scrollbar">
@@ -159,6 +182,8 @@ const Tasks = () => {
                             filters={filters}
                             onUpdate={handleUpdate}
                             onDelete={handleDelete}
+                            onBulkUpdate={handleBulkUpdate}
+                            onBulkDelete={handleBulkDelete}
                         />
                     )}
 

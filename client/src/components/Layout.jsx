@@ -1,22 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import SettingsModal from "./SettingsModal";
 import Modal from "./Modal";
 import TaskForm from "./TaskForm";
+import AddProjectModal from "./AddProjectModal";
+import { TaskContext } from "../context/TaskContext";
+import { FocusProvider } from "../context/FocusContext";
+import FocusWidget from "./FocusWidget";
 import { Plus, Menu, Zap, X } from "lucide-react";
 
 import CommandPalette from "./CommandPalette";
 
 const Layout = () => {
+  const { addProject } = useContext(TaskContext);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null); // New state for editing
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-
-  const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
+  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
 
   const openTaskModal = (task = null) => {
     setEditingTask(task);
@@ -43,6 +47,7 @@ const Layout = () => {
   }, []);
 
   return (
+    <FocusProvider>
     <div className="flex min-h-screen bg-[var(--bg-main)] text-[var(--text-primary)] transition-colors duration-300">
       {/* Mobile Sidebar Overlay */}
       {isMobileSidebarOpen && (
@@ -62,9 +67,9 @@ const Layout = () => {
           isCollapsed={false}
           toggleSidebar={() => setIsMobileSidebarOpen(false)}
           openSettings={() => setIsSettingsOpen(true)}
-          openTaskModal={() => {
+          openTaskModal={(task) => {
             setIsMobileSidebarOpen(false);
-            setIsTaskModalOpen(true);
+            openTaskModal(task);
           }}
           onMobileClose={() => setIsMobileSidebarOpen(false)}
           isMobile={true}
@@ -85,7 +90,7 @@ const Layout = () => {
           isCollapsed={isSidebarCollapsed}
           toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           openSettings={() => setIsSettingsOpen(true)}
-          openTaskModal={() => setIsTaskModalOpen(true)}
+          openTaskModal={openTaskModal}
           openCommandPalette={() => setIsCommandPaletteOpen(true)}
         />
       </div>
@@ -134,7 +139,15 @@ const Layout = () => {
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
-        openTaskModal={() => setIsTaskModalOpen(true)}
+        openTaskModal={openTaskModal}
+        openAddProjectModal={() => setIsAddProjectOpen(true)}
+      />
+
+      {/* Global Add Project Modal */}
+      <AddProjectModal
+        isOpen={isAddProjectOpen}
+        onClose={() => setIsAddProjectOpen(false)}
+        onCreate={addProject}
       />
 
       {/* Global Add Task Modal */}
@@ -145,7 +158,10 @@ const Layout = () => {
       >
         <TaskForm onClose={closeTaskModal} task={editingTask} />
       </Modal>
+
+      <FocusWidget />
     </div>
+    </FocusProvider>
   );
 };
 

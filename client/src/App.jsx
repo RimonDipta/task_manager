@@ -4,11 +4,16 @@ import { TaskProvider } from "./context/TaskContext";
 import { ToastProvider } from "./context/ToastContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { lazy, Suspense, useEffect } from "react";
+import { getDefaultView } from "./utils/preferences";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./components/Layout";
 import ToastContainer from "./components/ToastContainer";
 import LoadingSpinner from "./components/LoadingSpinner";
+
+// Redirects "/dashboard" to whichever page the user picked as their default
+// landing view in Settings (falls back to Home).
+const DashboardRedirect = () => <Navigate to={getDefaultView()} replace />;
 
 // Lazy Load Pages
 const Login = lazy(() => import("./pages/Login"));
@@ -22,6 +27,11 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const HomeView = lazy(() => import("./pages/HomeView"));
 const PlaceholderPage = lazy(() => import("./pages/PlaceholderPage"));
+const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
+const Projects = lazy(() => import("./pages/Projects"));
+const PriorityView = lazy(() => import("./pages/PriorityView"));
+const CalendarView = lazy(() => import("./pages/CalendarView"));
+const ActivityHistory = lazy(() => import("./pages/ActivityHistory"));
 
 function App() {
   // Global Keyboard Shortcuts
@@ -49,10 +59,7 @@ function App() {
                   <Route path="/pages/:slug" element={<PlaceholderPage />} />
 
                   <Route element={<Layout />}>
-                    <Route
-                      path="/dashboard"
-                      element={<Navigate to="/dashboard/home" replace />}
-                    />
+                    <Route path="/dashboard" element={<DashboardRedirect />} />
                     <Route
                       path="/dashboard/list"
                       element={<Navigate to="/dashboard/home" replace />}
@@ -113,6 +120,54 @@ function App() {
                       element={
                         <PrivateRoute>
                           <Tasks />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/projects"
+                      element={
+                        <PrivateRoute>
+                          <Projects />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/projects/:id"
+                      element={
+                        <PrivateRoute>
+                          <ProjectDetail />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/archived"
+                      element={
+                        <PrivateRoute>
+                          <Dashboard />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/priority"
+                      element={
+                        <PrivateRoute>
+                          <PriorityView />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/calendar"
+                      element={
+                        <PrivateRoute>
+                          <CalendarView />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/dashboard/activity"
+                      element={
+                        <PrivateRoute>
+                          <ActivityHistory />
                         </PrivateRoute>
                       }
                     />

@@ -1,12 +1,49 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, ComposedChart, Line, Area, CartesianGrid, Cell } from "recharts";
-import { format, subDays, isSameDay, startOfDay, getHours, startOfWeek, endOfWeek, isWithinInterval, differenceInMinutes } from "date-fns";
-import { TaskContext } from "../context/TaskContext";
+import { format, subDays, isSameDay, startOfDay, getHours, isWithinInterval, differenceInMinutes } from "date-fns";
+import { AuthContext } from "../context/AuthContext";
+import * as taskApi from "../api/taskApi";
+// `motion` is only referenced via JSX tag names (<motion.div>); see LandingPage.jsx for details.
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock, TrendingUp, Flame, Activity } from "lucide-react";
 
+const RANGE_OPTIONS = [
+    { days: 7, label: "7D" },
+    { days: 14, label: "14D" },
+    { days: 30, label: "30D" },
+];
+
 const Analytics = () => {
-    const { tasks } = useContext(TaskContext);
+    const { user } = useContext(AuthContext);
+    const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [rangeDays, setRangeDays] = useState(7);
+
+    useEffect(() => {
+        if (!user) return;
+        let cancelled = false;
+
+        const load = async () => {
+            setLoading(true);
+            try {
+                // The shared TaskContext list only holds whatever view was last
+                // fetched (often a small, filtered page), which isn't enough data
+                // for real analytics — so this pulls its own complete task set.
+                const res = await taskApi.getTasks(user.token, { filter: "all", limit: 1000 });
+                if (!cancelled) setTasks(res.data.tasks);
+            } catch (err) {
+                console.error("Failed to load analytics data", err);
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        };
+
+        load();
+        return () => {
+            cancelled = true;
+        };
+    }, [user]);
 
     // Helper: Calculate Cycle Time (Duration) in Minutes
     // Wall-clock time from Creation -> Completion
@@ -23,12 +60,12 @@ const Analytics = () => {
 
     // --- Data Generation ---
 
-    // 1. Weekly Data (Tasks & Time)
+    // 1. Trend Data (Tasks & Time) over the selected range
     const generateWeeklyData = () => {
         const data = [];
-        for (let i = 6; i >= 0; i--) {
+        for (let i = rangeDays - 1; i >= 0; i--) {
             const date = subDays(new Date(), i);
-            const key = format(date, "EEE");
+            const key = rangeDays > 7 ? format(date, "MMM d") : format(date, "EEE");
 
             // Tasks *Completed* on this day
             // We use filtered tasks that are Done and check their completion date
@@ -69,20 +106,20 @@ const Analytics = () => {
         })).filter(h => h.val > 0);
     };
 
-    // 3. Weekly Summary stats
-    const getWeeklySummary = () => {
-        const start = startOfWeek(new Date(), { weekStartsOn: 1 });
-        const end = endOfWeek(new Date(), { weekStartsOn: 1 });
+    // 3. Range Summary stats
+    const getRangeSummary = () => {
+        const start = startOfDay(subDays(new Date(), rangeDays - 1));
+        const end = new Date();
 
-        // Filter tasks completed this week
-        const thisWeeksCompletedTasks = tasks.filter(t => {
+        // Filter tasks completed within the selected range
+        const rangeCompletedTasks = tasks.filter(t => {
             if (t.status !== "done" && !t.completed) return false;
             const completionDate = t.completedAt ? new Date(t.completedAt) : new Date(t.updatedAt);
             return isWithinInterval(completionDate, { start, end });
         });
 
-        const completed = thisWeeksCompletedTasks.length;
-        const totalMinutes = thisWeeksCompletedTasks.reduce((acc, t) => acc + getTaskDuration(t), 0);
+        const completed = rangeCompletedTasks.length;
+        const totalMinutes = rangeCompletedTasks.reduce((acc, t) => acc + getTaskDuration(t), 0);
 
         return {
             completed,
@@ -114,7 +151,7 @@ const Analytics = () => {
 
     const weeklyData = generateWeeklyData();
     const hourlyData = generateHourlyData();
-    const summary = getWeeklySummary();
+    const summary = getRangeSummary();
     const currentStreak = calculateCurrentStreak();
 
     // --- Animations ---
@@ -150,11 +187,29 @@ const Analytics = () => {
 
     return (
         <motion.div
-            className="space-y-6 pb-8"
+            className={`space-y-6 pb-8 transition-opacity ${loading ? "opacity-60" : ""}`}
             variants={containerVariants}
             initial="hidden"
             animate="visible"
         >
+            {/* Date Range Selector */}
+            <div className="flex items-center justify-end">
+                <div className="inline-flex items-center gap-1 bg-[var(--bg-surface)] p-1 rounded-lg border border-[var(--border-color)]">
+                    {RANGE_OPTIONS.map((opt) => (
+                        <button
+                            key={opt.days}
+                            onClick={() => setRangeDays(opt.days)}
+                            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${rangeDays === opt.days
+                                ? "bg-[var(--bg-card)] text-[var(--primary-color)] shadow-sm ring-1 ring-[var(--border-color)]"
+                                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                                }`}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
@@ -163,7 +218,7 @@ const Analytics = () => {
                     <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-2 opacity-90">
                             <CheckCircle2 size={18} />
-                            <span className="text-sm font-medium">Weekly Tasks</span>
+                            <span className="text-sm font-medium">Tasks ({rangeDays}D)</span>
                         </div>
                         <div className="text-4xl font-bold tracking-tight">{summary.completed}</div>
                     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
 const TimePopover = ({ selectedTime, onSelect, onClose, onClear }) => {
@@ -56,7 +56,7 @@ const TimePopover = ({ selectedTime, onSelect, onClose, onClear }) => {
         }
     };
 
-    const Column = ({ value, type, label }) => {
+    const Column = ({ value, type }) => {
         // Determine previous and next values for visual effect
         let prevVal, nextVal;
 

@@ -8,7 +8,6 @@ const TwoFactorSetupModal = ({ isOpen, onClose }) => {
     const { user, setUser } = useAuth();
     const { showToast } = useToast();
     const [step, setStep] = useState(1); // 1: Method, 2: Scan (App), 3: Verify (App)
-    const [method, setMethod] = useState(null); // 'email' | 'app'
     const [qrCode, setQrCode] = useState(null);
     const [secret, setSecret] = useState(null);
     const [token, setToken] = useState("");
@@ -17,12 +16,11 @@ const TwoFactorSetupModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     const handleMethodSelect = async (selectedMethod) => {
-        setMethod(selectedMethod);
         if (selectedMethod === 'email') {
             try {
                 setLoading(true);
                 // Backend: /api/auth/2fa/enable with method='email'
-                const res = await api.post("/auth/2fa/enable", { method: 'email' });
+                await api.post("/auth/2fa/enable", { method: 'email' });
                 setUser({ ...user, is2FAEnabled: true, twoFactorMethod: 'email' });
                 showToast("2FA Enabled via Email", "success");
                 onClose();
@@ -59,9 +57,9 @@ const TwoFactorSetupModal = ({ isOpen, onClose }) => {
         try {
             setLoading(true);
             // Verify and Enable
-            const res = await api.post("/auth/2fa/enable", { 
-                token, 
-                method: 'app' 
+            await api.post("/auth/2fa/enable", {
+                token,
+                method: 'app'
             });
             setUser({ ...user, is2FAEnabled: true, twoFactorMethod: 'app' });
             showToast("2FA Enabled via Authenticator App", "success");
@@ -165,6 +163,13 @@ const TwoFactorSetupModal = ({ isOpen, onClose }) => {
                                     </div>
                                 )}
                             </div>
+
+                            {secret && (
+                                <p className="text-xs text-[var(--text-secondary)]">
+                                    Can&apos;t scan? Enter this code manually:{" "}
+                                    <span className="font-mono tracking-wider text-[var(--text-primary)]">{secret}</span>
+                                </p>
+                            )}
 
                             <div className="space-y-4">
                                 <div>

@@ -26,6 +26,7 @@ const Dashboard = () => {
   const isCompletedView = location.pathname.includes("/completed");
   const isKanbanRoute = location.pathname.includes("/kanban");
   const isAnalyticsView = location.pathname.includes("/analytics");
+  const isArchivedView = location.pathname.includes("/archived");
 
   // Determine filter type based on active view
   const filterType = isTodayView
@@ -34,15 +35,18 @@ const Dashboard = () => {
       ? "upcoming"
       : isCompletedView
         ? "completed"
-        : isKanbanRoute
-          ? "all" // Kanban shows everything by default per user request
-          : "today"; // Default for root/dashboard
+        : isArchivedView
+          ? "archived"
+          : isKanbanRoute
+            ? "all" // Kanban shows everything by default per user request
+            : "today"; // Default for root/dashboard
 
   // Dynamic Title
   let pageTitle = "Dashboard - Doora";
   if (isTodayView) pageTitle = "Today - Doora";
   if (isUpcomingView) pageTitle = "Upcoming - Doora";
   if (isCompletedView) pageTitle = "Completed - Doora";
+  if (isArchivedView) pageTitle = "Archived - Doora";
   if (isKanbanRoute) {
     pageTitle = "Kanban - Doora";
   }
@@ -93,6 +97,7 @@ const Dashboard = () => {
                 {isTodayView && "Focus on your tasks for today."}
                 {isUpcomingView && "Plan ahead for increased productivity."}
                 {isCompletedView && "Review your accomplishments."}
+                {isArchivedView && "Tasks you've set aside."}
                 {isKanbanRoute && "Visualize your workflow."}
               </p>
             </div>

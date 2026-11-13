@@ -1,7 +1,6 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../api/authApi";
-import { AuthContext } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { Eye, EyeOff, Zap } from "lucide-react";
 
@@ -11,7 +10,6 @@ import usePageTitle from "../hooks/usePageTitle";
 
 const Register = () => {
   usePageTitle("Create Account - Doora");
-  const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const { showToast } = useToast();
 
@@ -52,10 +50,7 @@ const Register = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await registerUser({ name, email, password });
-      if (res.data.otp) {
-        console.log("🔒 OTP for verification:", res.data.otp);
-      }
+      await registerUser({ name, email, password });
       navigate("/verify-otp", { state: { email } });
     } catch (err) {
       showToast(err.response?.data?.message || "Registration failed");

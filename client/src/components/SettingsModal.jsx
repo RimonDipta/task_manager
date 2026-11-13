@@ -3,10 +3,17 @@ import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import api from "../api/axios";
 import { useToast } from "../context/ToastContext";
-import { X, User, Lock, Moon, Sun, Sparkles, Laptop, Shield, Trash2, KeyRound, ShieldCheck } from "lucide-react";
+import { X, User, Moon, Sun, Sparkles, Laptop, Shield, Trash2, KeyRound, ShieldCheck, SlidersHorizontal, Calendar } from "lucide-react";
 import ChangePasswordModal from "./ChangePasswordModal";
 import DeleteAccountModal from "./DeleteAccountModal";
 import TwoFactorSetupModal from "./TwoFactorSetupModal";
+import {
+    DEFAULT_VIEW_OPTIONS,
+    getDefaultView,
+    setDefaultView,
+    getWeekStartsOnMonday,
+    setWeekStartsOnMonday,
+} from "../utils/preferences";
 
 /**
  * SettingsModal Component
@@ -23,13 +30,15 @@ const SettingsModal = ({ isOpen, onClose }) => {
     const { showToast } = useToast();
 
     // Navigation State
-    const [activeTab, setActiveTab] = useState("general"); // 'general' or 'theme'
+    const [activeTab, setActiveTab] = useState("general"); // 'general', 'preferences', or 'theme'
 
     // User Form State
     const [name, setName] = useState(user?.name || "");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
+
+    // Preferences State
+    const [defaultView, setDefaultViewState] = useState(getDefaultView());
+    const [weekStartsMonday, setWeekStartsMonday] = useState(getWeekStartsOnMonday());
 
     // Modals State
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -77,22 +86,16 @@ const SettingsModal = ({ isOpen, onClose }) => {
         }
     };
 
-    const updatePasswordHandler = async (e) => {
-        e.preventDefault();
-        if (password !== confirmPassword) {
-            return showToast("Passwords do not match");
-        }
-        try {
-            setLoading(true);
-            await api.put("/users/profile", { password });
-            showToast("Password updated successfully", "success");
-            setPassword("");
-            setConfirmPassword("");
-        } catch (err) {
-            showToast(err.response?.data?.message || "Update failed");
-        } finally {
-            setLoading(false);
-        }
+    const handleDefaultViewChange = (value) => {
+        setDefaultViewState(value);
+        setDefaultView(value);
+        showToast("Default view updated", "success");
+    };
+
+    const handleWeekStartChange = (monday) => {
+        setWeekStartsMonday(monday);
+        setWeekStartsOnMonday(monday);
+        showToast("Week start preference updated", "success");
     };
 
     return (
@@ -116,6 +119,16 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             >
                                 <User size={18} />
                                 General
+                            </button>
+                            <button
+                                onClick={() => setActiveTab("preferences")}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === "preferences"
+                                    ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
+                                    : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+                                    }`}
+                            >
+                                <SlidersHorizontal size={18} />
+                                Preferences
                             </button>
                             <button
                                 onClick={() => setActiveTab("theme")}
@@ -253,6 +266,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                                 setUser({ ...user, is2FAEnabled: false, twoFactorMethod: 'email' });
                                                                 showToast("Two-Factor Authentication Disabled", "info");
                                                             } catch (err) {
+                                                                console.error("Failed to disable 2FA", err);
                                                                 showToast("Failed to disable 2FA", "error");
                                                             }
                                                         } else {
@@ -292,6 +306,49 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                     <Trash2 size={14} /> Delete
                                                 </button>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* PREFERENCES TAB */}
+                            {activeTab === "preferences" && (
+                                <div className="space-y-8 max-w-xl">
+                                    <div className="space-y-4">
+                                        <h4 className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)] uppercase tracking-wider">
+                                            <SlidersHorizontal size={14} /> Default View
+                                        </h4>
+                                        <p className="text-sm text-[var(--text-secondary)]">
+                                            Choose which page opens first when you sign in.
+                                        </p>
+                                        <select
+                                            value={defaultView}
+                                            onChange={(e) => handleDefaultViewChange(e.target.value)}
+                                            className="w-full px-4 py-2 bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-[var(--primary-color)] transition-all"
+                                        >
+                                            {DEFAULT_VIEW_OPTIONS.map((opt) => (
+                                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <hr className="border-[var(--border-color)]" />
+
+                                    <div className="space-y-4">
+                                        <h4 className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)] uppercase tracking-wider">
+                                            <Calendar size={14} /> Calendar
+                                        </h4>
+                                        <div className="flex items-center justify-between p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
+                                            <div>
+                                                <h5 className="font-medium text-[var(--text-primary)]">Week Starts on Monday</h5>
+                                                <p className="text-sm text-[var(--text-secondary)]">Affects the Calendar view's layout</p>
+                                            </div>
+                                            <button
+                                                onClick={() => handleWeekStartChange(!weekStartsMonday)}
+                                                className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${weekStartsMonday ? 'bg-[var(--primary-color)]' : 'bg-slate-300 dark:bg-slate-600'}`}
+                                            >
+                                                <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${weekStartsMonday ? 'translate-x-6' : 'translate-x-0'}`} />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

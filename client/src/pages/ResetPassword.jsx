@@ -15,7 +15,7 @@ const ResetPassword = () => {
   const [step, setStep] = useState(state?.step || 'verify');
 
   // State
-  const [email, setEmail] = useState(state?.email || "");
+  const [email] = useState(state?.email || "");
   const [otp, setOtp] = useState("");
   const [resetToken, setResetToken] = useState(null);
   const [password, setPassword] = useState("");

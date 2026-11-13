@@ -1,16 +1,20 @@
 import { useContext, useState, useRef, useEffect } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { TaskContext } from "../context/TaskContext";
+import { FocusContext } from "../context/FocusContext";
 import { useToast } from "../context/ToastContext";
 import useSound from "../hooks/useSound";
+// `motion` is only referenced via JSX tag names (<motion.div>); see LandingPage.jsx for details.
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Trash2, Circle, Flag, Edit2, Calendar, MoreHorizontal, Tag, X, AlertCircle } from "lucide-react";
+import { Check, Trash2, Circle, Flag, Edit2, Calendar, MoreHorizontal, Tag, X, AlertCircle, Archive, Brain } from "lucide-react";
 import TimeTracker from "./TimeTracker";
 import DatePopover from "./DatePopover";
 import PriorityLabelPopover from "./PriorityLabelPopover";
 
 const TaskItem = ({ task, onUpdate, onDelete }) => {
   const { updateTask: contextUpdate, removeTask: contextRemove } = useContext(TaskContext);
+  const { startFocus, focusState } = useContext(FocusContext);
   const { openTaskModal } = useOutletContext() || {}; // Access global modal opener
   const playSound = useSound();
 
@@ -178,6 +182,19 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
       {/* Action Icons (Visible on Hover) */}
       <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity self-start">
 
+        {!task.completed && (
+          <button
+            className={`p-1.5 rounded-lg transition-colors ${focusState?.activeTask?._id === task._id
+              ? "text-indigo-500 bg-indigo-500/10"
+              : "text-[var(--text-tertiary)] hover:text-indigo-500 hover:bg-[var(--bg-surface)]"
+              }`}
+            title="Start Focus Timer"
+            onClick={() => startFocus(task)}
+          >
+            <Brain size={16} />
+          </button>
+        )}
+
         <button
           className="p-1.5 text-[var(--text-tertiary)] hover:text-[var(--primary-color)] hover:bg-[var(--bg-surface)] rounded-lg transition-colors"
           title="Edit Task"
@@ -294,6 +311,20 @@ const TaskItem = ({ task, onUpdate, onDelete }) => {
 
               {/* Divider */}
               <div className="h-px bg-[var(--border-color)] my-2"></div>
+
+              {/* Archive / Restore Option */}
+              <button
+                onClick={() => {
+                  handleUpdate(task._id, {
+                    status: task.status === "archived" ? "todo" : "archived",
+                  });
+                  setActivePopover(null);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm transition-colors font-medium"
+              >
+                <Archive size={14} />
+                {task.status === "archived" ? "Restore Task" : "Archive Task"}
+              </button>
 
               {/* Delete Option */}
               <button

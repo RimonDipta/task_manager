@@ -3,6 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { TaskContext } from "../context/TaskContext";
+import AddProjectModal from "./AddProjectModal";
+import NotificationsBell from "./NotificationsBell";
 import {
   Settings,
   Search,
@@ -21,6 +23,9 @@ import {
   X,
   Folder,
   CalendarRange,
+  Flag,
+  Archive,
+  History,
 } from "lucide-react";
 
 const Sidebar = ({
@@ -36,6 +41,7 @@ const Sidebar = ({
   const { projects, addProject } = useContext(TaskContext); // Use Projects from Context
   const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const isActive = (path) => location.pathname === path;
@@ -55,12 +61,6 @@ const Sidebar = ({
     logoutUser();
   };
 
-  const handleCreateProject = async () => {
-    const name = prompt("Enter project name:");
-    if (name) {
-      await addProject({ name });
-    }
-  };
 
   return (
     <div
@@ -122,9 +122,14 @@ const Sidebar = ({
           )}
         </button>
 
+        {/* Notifications */}
+        <div className="mb-2">
+          <NotificationsBell isCollapsed={isCollapsed} onOpenTask={(task) => openTaskModal(task)} />
+        </div>
+
         {/* Add Task Shortcut */}
         <button
-          onClick={openTaskModal}
+          onClick={() => openTaskModal()}
           className={`w-full flex items-center gap-3 px-3 py-2 mb-4 rounded-lg transition-all group relative ${
             isCollapsed
               ? "justify-center bg-[var(--primary-color)] text-white hover:opacity-90"
@@ -250,6 +255,52 @@ const Sidebar = ({
         </Link>
 
         <Link
+          to="/dashboard/priority"
+          onClick={() => onMobileClose && onMobileClose()}
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group relative ${
+            isActive("/dashboard/priority")
+              ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
+              : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+          } ${isCollapsed ? "justify-center" : ""}`}
+          title={isCollapsed ? "Priority" : ""}
+        >
+          <Flag
+            size={20}
+            className={
+              isActive("/dashboard/priority")
+                ? "text-[var(--primary-color)]"
+                : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"
+            }
+          />
+          {!isCollapsed && (
+            <span className="text-sm font-medium">Priority</span>
+          )}
+        </Link>
+
+        <Link
+          to="/dashboard/calendar"
+          onClick={() => onMobileClose && onMobileClose()}
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group relative ${
+            isActive("/dashboard/calendar")
+              ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
+              : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+          } ${isCollapsed ? "justify-center" : ""}`}
+          title={isCollapsed ? "Calendar" : ""}
+        >
+          <Calendar
+            size={20}
+            className={
+              isActive("/dashboard/calendar")
+                ? "text-[var(--primary-color)]"
+                : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"
+            }
+          />
+          {!isCollapsed && (
+            <span className="text-sm font-medium">Calendar</span>
+          )}
+        </Link>
+
+        <Link
           to="/dashboard/kanban"
           onClick={() => onMobileClose && onMobileClose()}
           className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group relative ${
@@ -270,15 +321,88 @@ const Sidebar = ({
           {!isCollapsed && <span className="text-sm font-medium">Kanban</span>}
         </Link>
 
+        <Link
+          to="/dashboard/analytics"
+          onClick={() => onMobileClose && onMobileClose()}
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group relative ${
+            isActive("/dashboard/analytics")
+              ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
+              : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+          } ${isCollapsed ? "justify-center" : ""}`}
+          title={isCollapsed ? "Analytics" : ""}
+        >
+          <BarChart3
+            size={20}
+            className={
+              isActive("/dashboard/analytics")
+                ? "text-[var(--primary-color)]"
+                : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"
+            }
+          />
+          {!isCollapsed && (
+            <span className="text-sm font-medium">Analytics</span>
+          )}
+        </Link>
+
+        <Link
+          to="/dashboard/archived"
+          onClick={() => onMobileClose && onMobileClose()}
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group relative ${
+            isActive("/dashboard/archived")
+              ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
+              : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+          } ${isCollapsed ? "justify-center" : ""}`}
+          title={isCollapsed ? "Archived" : ""}
+        >
+          <Archive
+            size={20}
+            className={
+              isActive("/dashboard/archived")
+                ? "text-[var(--primary-color)]"
+                : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"
+            }
+          />
+          {!isCollapsed && (
+            <span className="text-sm font-medium">Archived</span>
+          )}
+        </Link>
+
+        <Link
+          to="/dashboard/activity"
+          onClick={() => onMobileClose && onMobileClose()}
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group relative ${
+            isActive("/dashboard/activity")
+              ? "bg-[var(--primary-light)]/10 text-[var(--primary-color)]"
+              : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+          } ${isCollapsed ? "justify-center" : ""}`}
+          title={isCollapsed ? "Activity" : ""}
+        >
+          <History
+            size={20}
+            className={
+              isActive("/dashboard/activity")
+                ? "text-[var(--primary-color)]"
+                : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"
+            }
+          />
+          {!isCollapsed && (
+            <span className="text-sm font-medium">Activity</span>
+          )}
+        </Link>
+
         {/* Projects Section */}
         {!isCollapsed && (
           <div className="pt-4 mt-2 border-t border-[var(--border-color)]">
             <div className="flex items-center justify-between px-3 mb-2">
-              <h3 className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
+              <Link
+                to="/dashboard/projects"
+                onClick={() => onMobileClose && onMobileClose()}
+                className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider hover:text-[var(--text-primary)] transition-colors"
+              >
                 Projects
-              </h3>
+              </Link>
               <button
-                onClick={handleCreateProject}
+                onClick={() => setIsAddProjectOpen(true)}
                 className="text-[var(--text-secondary)] hover:text-[var(--primary-color)] transition-colors"
                 title="Add Project"
               >
@@ -289,10 +413,10 @@ const Sidebar = ({
               {projects.map((project) => (
                 <Link
                   key={project._id}
-                  to={`/dashboard/project/${project._id}`} // Assuming route
+                  to={`/dashboard/projects/${project._id}`}
                   onClick={() => onMobileClose && onMobileClose()}
                   className={`flex items-center gap-3 px-3 py-1.5 rounded-lg transition-colors group relative ${
-                    isActive(`/dashboard/project/${project._id}`)
+                    isActive(`/dashboard/projects/${project._id}`)
                       ? "bg-[var(--primary-light)]/10 text-[var(--text-primary)]"
                       : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
                   }`}
@@ -392,6 +516,12 @@ const Sidebar = ({
           )}
         </div>
       </div>
+
+      <AddProjectModal
+        isOpen={isAddProjectOpen}
+        onClose={() => setIsAddProjectOpen(false)}
+        onCreate={addProject}
+      />
     </div>
   );
 };

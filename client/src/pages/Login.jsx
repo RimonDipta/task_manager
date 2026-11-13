@@ -162,6 +162,7 @@ const Login = () => {
                                 showToast("Backup code sent to email", "success");
                             }
                         } catch (err) {
+                            console.error("Failed to send backup code", err);
                             showToast("Failed to send backup code");
                         } finally {
                             setLoading(false);

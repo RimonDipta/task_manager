@@ -16,7 +16,6 @@ export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState([]); // Projects State
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   // We remove the auto-fetch on mount from here because Dashboard/Pages will control it.
   // Or we can keep it with default args.
@@ -38,7 +37,7 @@ export const TaskProvider = ({ children }) => {
       const res = await taskApi.getProjects(user.token);
       setProjects(res.data);
     } catch (err) {
-      console.error("Failed to fetch projects");
+      console.error("Failed to fetch projects", err);
     }
   };
 
@@ -53,11 +52,32 @@ export const TaskProvider = ({ children }) => {
     }
   };
 
+  const editProject = async (id, data) => {
+    try {
+      const res = await taskApi.updateProject(id, data, user.token);
+      setProjects((prev) => {
+        // Archiving (or restoring into a list that excludes it) removes/re-adds
+        // the project, mirroring what the backend's default "hide archived" filter returns.
+        if (res.data.archived) {
+          return prev.filter((p) => p._id !== id);
+        }
+        const exists = prev.some((p) => p._id === id);
+        return exists ? prev.map((p) => (p._id === id ? res.data : p)) : [res.data, ...prev];
+      });
+      return res.data;
+    } catch (err) {
+      console.error("Failed to update project", err);
+      showToast("Failed to update project");
+      throw err;
+    }
+  };
+
   const removeProject = async (id) => {
     try {
       await taskApi.deleteProject(id, user.token);
       setProjects(projects.filter(p => p._id !== id));
     } catch (err) {
+      console.error("Failed to delete project", err);
       showToast("Failed to delete project");
     }
   };
@@ -113,6 +133,31 @@ export const TaskProvider = ({ children }) => {
     }
   };
 
+  const bulkUpdateTasks = async (ids, data) => {
+    try {
+      const res = await taskApi.bulkUpdateTasks(ids, data, user.token);
+      const updatedById = new Map(res.data.map((t) => [t._id, t]));
+      setTasks((prev) => prev.map((t) => updatedById.get(t._id) || t));
+      return res.data;
+    } catch (err) {
+      console.error("Failed to bulk update tasks", err);
+      showToast("Failed to update tasks");
+      throw err;
+    }
+  };
+
+  const bulkDeleteTasks = async (ids) => {
+    try {
+      await taskApi.bulkDeleteTasks(ids, user.token);
+      const idSet = new Set(ids);
+      setTasks((prev) => prev.filter((t) => !idSet.has(t._id)));
+    } catch (err) {
+      console.error("Failed to bulk delete tasks", err);
+      showToast("Failed to delete tasks");
+      throw err;
+    }
+  };
+
   return (
     <TaskContext.Provider
       value={{
@@ -126,10 +171,13 @@ export const TaskProvider = ({ children }) => {
         addTask,
         updateTask,
         removeTask,
+        bulkUpdateTasks,
+        bulkDeleteTasks,
         fetchTasks,
         projects,
         fetchProjects,
         addProject,
+        editProject,
         removeProject
       }}
     >

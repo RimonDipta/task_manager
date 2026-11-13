@@ -14,6 +14,15 @@ export const getTasks = async (req, res) => {
       title: { $regex: search, $options: "i" },
     };
 
+    if (req.query.project) {
+      query.project = req.query.project;
+    }
+
+    // Archived tasks are hidden from every view unless explicitly requested.
+    if (filter !== "archived") {
+      query.status = { $ne: "archived" };
+    }
+
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
@@ -43,6 +52,12 @@ export const getTasks = async (req, res) => {
     } else if (filter === "active") {
       // "active" = All tasks that are NOT completed
       query.completed = false;
+    } else if (filter === "in_progress") {
+      query.status = "doing";
+    } else if (filter === "review") {
+      query.status = "review";
+    } else if (filter === "archived") {
+      query.status = "archived";
     }
     // filter === 'all' (or default) -> No extra query params, returns everything (used for Kanban)
 
@@ -185,4 +200,59 @@ export const deleteTask = async (req, res) => {
 
   await task.deleteOne();
   res.json({ message: "Task removed" });
+};
+
+// @desc Update multiple tasks at once (completion, status, priority)
+// @route PUT /api/tasks/bulk
+export const bulkUpdateTasks = async (req, res) => {
+  try {
+    const { ids, data } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: "No task ids provided" });
+    }
+
+    // Only allow a known-safe set of fields through bulk update.
+    const update = {};
+    if (data?.completed !== undefined) {
+      update.completed = data.completed;
+      update.status = data.completed ? "done" : "todo";
+      update.completedAt = data.completed ? new Date() : null;
+    }
+    if (data?.status) update.status = data.status;
+    if (data?.priority) update.priority = data.priority;
+
+    if (Object.keys(update).length === 0) {
+      return res.status(400).json({ message: "No valid fields to update" });
+    }
+
+    await Task.updateMany({ _id: { $in: ids }, user: req.user }, update);
+
+    const tasks = await Task.find({ _id: { $in: ids }, user: req.user }).populate(
+      "project",
+      "name color"
+    );
+    res.json(tasks);
+  } catch (error) {
+    console.error("Error in bulkUpdateTasks:", error);
+    res.status(500).json({ message: "Server Error updating tasks" });
+  }
+};
+
+// @desc Delete multiple tasks at once
+// @route DELETE /api/tasks/bulk
+export const bulkDeleteTasks = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: "No task ids provided" });
+    }
+
+    await Task.deleteMany({ _id: { $in: ids }, user: req.user });
+    res.json({ message: "Tasks removed" });
+  } catch (error) {
+    console.error("Error in bulkDeleteTasks:", error);
+    res.status(500).json({ message: "Server Error deleting tasks" });
+  }
 };

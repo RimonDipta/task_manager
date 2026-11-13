@@ -17,7 +17,7 @@ const taskSchema = new mongoose.Schema(
     completed: { type: Boolean, default: false },
     status: {
       type: String,
-      enum: ["todo", "doing", "done"],
+      enum: ["todo", "doing", "review", "done", "archived"],
       default: "todo",
     },
     recurrence: {

@@ -1,9 +1,13 @@
 import { useEffect, useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+// `motion` is only referenced via JSX tag names (<motion.div>), which this
+// project's lint config (no eslint-plugin-react) doesn't recognize as a use.
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthContext } from "../context/AuthContext";
 import { Zap, CheckCircle, Kanban, BarChart3, ArrowRight, Star, Menu, X } from "lucide-react";
 import usePageTitle from "../hooks/usePageTitle";
+import { getDefaultView } from "../utils/preferences";
 
 const LandingPage = () => {
     usePageTitle("Doora - The Future of Work");
@@ -15,7 +19,7 @@ const LandingPage = () => {
     // Redirect if already logged in
     useEffect(() => {
         if (user) {
-            navigate("/dashboard/home");
+            navigate(getDefaultView());
         }
     }, [user, navigate]);
 

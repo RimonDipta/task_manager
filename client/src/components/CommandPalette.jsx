@@ -5,25 +5,34 @@ import {
   LayoutDashboard,
   List,
   Calendar,
+  CalendarDays,
   CheckCircle,
   Kanban,
   Folder,
+  FolderKanban,
+  Flag,
+  BarChart3,
+  Archive,
+  History,
   PlusCircle,
   Moon,
   Sun,
-  Zap,
   ArrowRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { TaskContext } from "../context/TaskContext";
 import { ThemeContext } from "../context/ThemeContext";
+import { AuthContext } from "../context/AuthContext";
+import * as taskApi from "../api/taskApi";
 
-const CommandPalette = ({ isOpen, onClose, openTaskModal }) => {
+const CommandPalette = ({ isOpen, onClose, openTaskModal, openAddProjectModal }) => {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [taskResults, setTaskResults] = useState([]);
   const inputRef = useRef(null);
   const navigate = useNavigate();
-  const { projects, addProject } = useContext(TaskContext);
+  const { projects } = useContext(TaskContext);
+  const { user } = useContext(AuthContext);
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
 
   // Focus input when opened
@@ -34,6 +43,29 @@ const CommandPalette = ({ isOpen, onClose, openTaskModal }) => {
       setSelectedIndex(0);
     }
   }, [isOpen]);
+
+  // Search tasks on the server as the user types, so results aren't limited
+  // to whatever page happens to be loaded in context. Stale results left over
+  // from a previous query are harmless since `allItems` only shows task
+  // results while `query` is non-empty.
+  useEffect(() => {
+    if (!isOpen || !user || !query.trim()) return;
+
+    let cancelled = false;
+    const timeoutId = setTimeout(async () => {
+      try {
+        const res = await taskApi.getTasks(user.token, { search: query.trim(), filter: "all", limit: 6 });
+        if (!cancelled) setTaskResults(res.data.tasks);
+      } catch (err) {
+        console.error("Failed to search tasks", err);
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [query, isOpen, user]);
 
   // Handle close with Escape
   useEffect(() => {
@@ -89,6 +121,48 @@ const CommandPalette = ({ isOpen, onClose, openTaskModal }) => {
       path: "/dashboard/kanban",
       type: "Page",
     },
+    {
+      id: "priority",
+      label: "Priority View",
+      icon: Flag,
+      path: "/dashboard/priority",
+      type: "Page",
+    },
+    {
+      id: "calendar",
+      label: "Calendar",
+      icon: CalendarDays,
+      path: "/dashboard/calendar",
+      type: "Page",
+    },
+    {
+      id: "projects",
+      label: "Projects",
+      icon: FolderKanban,
+      path: "/dashboard/projects",
+      type: "Page",
+    },
+    {
+      id: "analytics",
+      label: "Analytics",
+      icon: BarChart3,
+      path: "/dashboard/analytics",
+      type: "Page",
+    },
+    {
+      id: "archived",
+      label: "Archived",
+      icon: Archive,
+      path: "/dashboard/archived",
+      type: "Page",
+    },
+    {
+      id: "activity",
+      label: "Activity History",
+      icon: History,
+      path: "/dashboard/activity",
+      type: "Page",
+    },
   ];
 
   const actions = [
@@ -107,10 +181,9 @@ const CommandPalette = ({ isOpen, onClose, openTaskModal }) => {
       id: "new_project",
       label: "Create New Project",
       icon: Folder,
-      action: async () => {
+      action: () => {
         onClose();
-        const name = prompt("Enter project name:");
-        if (name) await addProject({ name });
+        openAddProjectModal();
       },
       type: "Action",
     },
@@ -132,14 +205,28 @@ const CommandPalette = ({ isOpen, onClose, openTaskModal }) => {
     id: `proj_${p._id}`,
     label: p.name,
     icon: Folder,
-    path: `/dashboard/project/${p._id}`,
+    path: `/dashboard/projects/${p._id}`,
     type: "Project",
     color: p.color,
   }));
 
-  const allItems = [...navigationItems, ...actions, ...filteredProjects].filter(
+  const taskItems = taskResults.map((t) => ({
+    id: `task_${t._id}`,
+    label: t.title,
+    icon: CheckCircle,
+    action: () => {
+      openTaskModal(t);
+      onClose();
+    },
+    type: "Task",
+  }));
+
+  const staticItems = [...navigationItems, ...actions, ...filteredProjects].filter(
     (item) => item.label.toLowerCase().includes(query.toLowerCase())
   );
+
+  // Task results come pre-filtered by the server, so they're appended as-is.
+  const allItems = query.trim() ? [...taskItems, ...staticItems] : staticItems;
 
   // Keyboard navigation
   const handleKeyDown = (e) => {

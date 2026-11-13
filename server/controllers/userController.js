@@ -1,12 +1,5 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-import speakeasy from "speakeasy";
-import QRCode from "qrcode";
-// generateToken import removed as it is not used in update profile currently
-
-// Wait, generateToken was inside authController. I should extract it or copy it.
-// Checking authController again... it defined generateToken inside.
-// I should duplicate it for now or Refactor later. Duplication is safer to avoid breaking authController.
 
 // @desc Update user profile
 // @route PUT /api/users/profile
@@ -98,67 +91,8 @@ export const deleteUserProfile = async (req, res) => {
     }
 };
 
-// @desc Toggle 2FA
-// @route PUT /api/users/2fa
-export const toggle2FA = async (req, res) => {
-    const user = await User.findById(req.user);
-
-    if (user) {
-        user.is2FAEnabled = !user.is2FAEnabled;
-        if (user.is2FAEnabled && !user.twoFactorMethod) {
-            user.twoFactorMethod = 'email';
-        }
-        await user.save();
-        res.json({
-            is2FAEnabled: user.is2FAEnabled,
-            message: `Two-Factor Authentication ${user.is2FAEnabled ? 'Enabled' : 'Disabled'}`
-        });
-    } else {
-        res.status(404).json({ message: "User not found" });
-    }
-};
-
-// @desc Generate 2FA Secret for App
-// @route POST /api/users/2fa/setup
-export const setup2FA = async (req, res) => {
-    const user = await User.findById(req.user);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    const secret = speakeasy.generateSecret({
-        name: `TaskManager (${user.email})`
-    });
-
-    QRCode.toDataURL(secret.otpauth_url, (err, data_url) => {
-        if (err) return res.status(500).json({ message: "Error generating QR code" });
-
-        res.json({
-            secret: secret.base32,
-            qrCode: data_url
-        });
-    });
-};
-
-// @desc Verify and Enable App 2FA
-// @route POST /api/users/2fa/verify-setup
-export const verify2FASetup = async (req, res) => {
-    const { token, secret } = req.body;
-    const user = await User.findById(req.user);
-
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    const verified = speakeasy.totp.verify({
-        secret: secret,
-        encoding: 'base32',
-        token: token
-    });
-
-    if (verified) {
-        user.is2FAEnabled = true;
-        user.twoFactorMethod = 'app';
-        user.twoFactorSecret = { base32: secret }; // Storing the secret
-        await user.save();
-        res.json({ message: "2FA Verified and Enabled", is2FAEnabled: true });
-    } else {
-        res.status(400).json({ message: "Invalid Authenticator Code" });
-    }
-};
+// NOTE: 2FA setup/enable/disable is handled by authController.js
+// (routes mounted at /api/auth/2fa/*). The toggle2FA/setup2FA/verify2FASetup
+// functions that used to live here were dead code — never called by the
+// frontend — and duplicated that flow with a divergent implementation.
+// Removed during the Phase 1 audit cleanup to avoid two sources of truth.

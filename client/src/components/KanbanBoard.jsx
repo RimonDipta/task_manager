@@ -10,6 +10,7 @@ const KanbanBoard = ({ filterType = "all", filters, tasks: propTasks }) => {
     const [columns, setColumns] = useState({
         todo: { name: "To Do", items: [], color: "bg-slate-50 dark:bg-slate-900/50", accent: "indigo" },
         doing: { name: "In Progress", items: [], color: "bg-blue-50 dark:bg-blue-900/20", accent: "blue" },
+        review: { name: "In Review", items: [], color: "bg-purple-50 dark:bg-purple-900/20", accent: "purple" },
         done: { name: "Done", items: [], color: "bg-green-50 dark:bg-green-900/20", accent: "emerald" },
     });
 
@@ -45,14 +46,15 @@ const KanbanBoard = ({ filterType = "all", filters, tasks: propTasks }) => {
             });
 
 
+            const knownStatuses = ["doing", "review", "done", "archived"];
             setColumns({
-                // Catch-all: If status is 'todo' OR missing OR unknown, put it in To Do.
-                // But specifically separate doing/done.
+                // Catch-all: If status is 'todo', missing, or anything unrecognized, put it in To Do.
                 todo: {
                     ...columns.todo,
-                    items: filteredTasks.filter((t) => !t.status || t.status === "todo" || (t.status !== 'doing' && t.status !== 'done'))
+                    items: filteredTasks.filter((t) => !knownStatuses.includes(t.status))
                 },
                 doing: { ...columns.doing, items: filteredTasks.filter((t) => t.status === "doing") },
+                review: { ...columns.review, items: filteredTasks.filter((t) => t.status === "review") },
                 done: { ...columns.done, items: filteredTasks.filter((t) => t.status === "done") },
             });
         }
@@ -94,7 +96,7 @@ const KanbanBoard = ({ filterType = "all", filters, tasks: propTasks }) => {
     if (loading && !tasks.length) {
         return (
             <div className="flex flex-col md:flex-row gap-6 overflow-x-auto pb-4 items-start h-full">
-                {[1, 2, 3].map((col) => (
+                {[1, 2, 3, 4].map((col) => (
                     <div key={col} className="flex-1 min-w-[300px] w-full flex flex-col h-full max-h-[calc(100vh-200px)]">
                         <div className="mb-3 p-3 rounded-xl flex items-center justify-between border border-[var(--border-color)] bg-[var(--bg-card)] shadow-sm animate-pulse">
                             <div className="h-5 bg-slate-200 dark:bg-slate-700/50 rounded w-24"></div>
@@ -113,7 +115,7 @@ const KanbanBoard = ({ filterType = "all", filters, tasks: propTasks }) => {
     return (
         <div className="flex flex-col md:flex-row gap-6 overflow-x-auto pb-4 items-start h-full">
             <DragDropContext onDragEnd={onDragEnd}>
-                {Object.entries(columns).map(([columnId, column], index) => {
+                {Object.entries(columns).map(([columnId, column]) => {
                     return (
                         <div
                             className="flex-1 min-w-[300px] w-full flex flex-col h-full max-h-[calc(100vh-200px)]"
@@ -124,14 +126,16 @@ const KanbanBoard = ({ filterType = "all", filters, tasks: propTasks }) => {
                                 mb-3 p-3 rounded-xl flex items-center justify-between border border-[var(--border-color)] bg-[var(--bg-card)] shadow-sm
                                 ${columnId === 'todo' ? 'border-l-4 border-l-indigo-500' :
                                     columnId === 'doing' ? 'border-l-4 border-l-blue-500' :
-                                        'border-l-4 border-l-green-500'}
+                                        columnId === 'review' ? 'border-l-4 border-l-purple-500' :
+                                            'border-l-4 border-l-green-500'}
                             `}>
                                 <h2 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wide">
                                     {column.name}
                                 </h2>
                                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${columnId === 'todo' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' :
                                     columnId === 'doing' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' :
-                                        'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
+                                        columnId === 'review' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300' :
+                                            'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
                                     }`}>
                                     {column.items.length}
                                 </span>
