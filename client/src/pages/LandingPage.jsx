@@ -5,7 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthContext } from "../context/AuthContext";
-import { Zap, CheckCircle, Kanban, BarChart3, ArrowRight, Star, Menu, X } from "lucide-react";
+import { CheckCircle, Kanban, BarChart3, ArrowRight, Star, Menu, X } from "lucide-react";
+import DooraLogo from "../components/DooraLogo";
 import usePageTitle from "../hooks/usePageTitle";
 import { getDefaultView } from "../utils/preferences";
 
@@ -42,7 +43,7 @@ const LandingPage = () => {
                         {/* Logo */}
                         <div className="flex items-center gap-2 font-bold text-lg tracking-tight">
                             <div className="relative">
-                                <Zap className="w-5 h-5 text-indigo-400 fill-indigo-400/20" />
+                                <DooraLogo className="w-5 h-5 text-indigo-400 fill-indigo-400/20" />
                                 <div className="absolute inset-0 bg-indigo-400 blur-lg opacity-40"></div>
                             </div>
                             <span>Doora</span>
@@ -319,7 +320,7 @@ const LandingPage = () => {
                                 </Link>
                             </div>
                             <div className="absolute right-[-20px] bottom-[-20px] opacity-20">
-                                <Zap size={200} />
+                                <DooraLogo size={200} />
                             </div>
                         </motion.div>
                     </div>
@@ -452,7 +453,7 @@ const LandingPage = () => {
                     {/* Brand Column */}
                     <div className="col-span-2">
                         <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-white mb-6">
-                            <Zap className="w-6 h-6 text-indigo-500 fill-indigo-500/20" />
+                            <DooraLogo className="w-6 h-6 text-indigo-500 fill-indigo-500/20" />
                             <span>Doora</span>
                         </div>
                         <p className="text-slate-400 mb-6 max-w-sm leading-relaxed">

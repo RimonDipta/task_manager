@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
-import { Zap, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import DooraLogo from "../components/DooraLogo";
 import usePageTitle from "../hooks/usePageTitle";
 
 const PlaceholderPage = () => {
@@ -17,7 +18,7 @@ const PlaceholderPage = () => {
             {/* Simple Header */}
             <header className="p-6 flex items-center justify-between border-b border-white/10">
                 <Link to="/" className="flex items-center gap-2 font-bold text-xl tracking-tight hover:opacity-80 transition-opacity">
-                    <Zap className="w-6 h-6 text-indigo-500 fill-indigo-500/20" />
+                    <DooraLogo className="w-6 h-6 text-indigo-500 fill-indigo-500/20" />
                     <span>Doora</span>
                 </Link>
                 <Link to="/" className="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-1">
@@ -29,7 +30,7 @@ const PlaceholderPage = () => {
             {/* Content */}
             <main className="flex-1 flex flex-col items-center justify-center p-4 text-center">
                 <div className="w-24 h-24 bg-indigo-500/10 rounded-full flex items-center justify-center mb-8 animate-pulse">
-                    <Zap className="w-12 h-12 text-indigo-400 opacity-50" />
+                    <DooraLogo className="w-12 h-12 text-indigo-400 opacity-50" />
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
                     {title}

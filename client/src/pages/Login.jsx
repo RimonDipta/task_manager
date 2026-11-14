@@ -3,7 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../api/authApi";
 import { AuthContext } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { ShieldCheck, Eye, EyeOff, Zap } from "lucide-react";
+import { ShieldCheck, Eye, EyeOff } from "lucide-react";
+import DooraLogo from "../components/DooraLogo";
 import api from "../api/axios";
 import usePageTitle from "../hooks/usePageTitle";
 
@@ -72,7 +73,7 @@ const Login = () => {
         {/* Logo */}
         <div className="absolute top-8 left-8">
           <Link to="/" className="flex items-center gap-2 font-bold text-[var(--primary-color)] hover:opacity-80 transition-opacity">
-            <Zap size={24} />
+            <DooraLogo size={24} />
           </Link>
         </div>
         <div className="text-center mb-8">

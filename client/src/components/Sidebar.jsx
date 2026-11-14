@@ -13,7 +13,6 @@ import {
   ChevronLeft,
   ChevronRight,
   PlusCircle,
-  Zap,
   List,
   Kanban,
   BarChart3,
@@ -27,6 +26,7 @@ import {
   Archive,
   History,
 } from "lucide-react";
+import DooraLogo from "./DooraLogo";
 
 const Sidebar = ({
   isCollapsed,
@@ -74,12 +74,12 @@ const Sidebar = ({
       <div className="p-3 flex items-center justify-between h-14 border-b border-[var(--border-color)] shrink-0">
         {!isCollapsed ? (
           <h1 className="text-lg font-bold text-[var(--primary-color)] tracking-tight flex items-center gap-2 truncate">
-            <Zap className="w-5 h-5" />
+            <DooraLogo className="w-5 h-5" />
             Doora
           </h1>
         ) : (
           <div className="w-full flex justify-center">
-            <Zap className="w-6 h-6 text-[var(--primary-color)]" />
+            <DooraLogo className="w-6 h-6 text-[var(--primary-color)]" />
           </div>
         )}
 

@@ -8,7 +8,8 @@ import AddProjectModal from "./AddProjectModal";
 import { TaskContext } from "../context/TaskContext";
 import { FocusProvider } from "../context/FocusContext";
 import FocusWidget from "./FocusWidget";
-import { Plus, Menu, Zap, X } from "lucide-react";
+import { Plus, Menu, X } from "lucide-react";
+import DooraLogo from "./DooraLogo";
 
 import CommandPalette from "./CommandPalette";
 
@@ -106,7 +107,7 @@ const Layout = () => {
             <Menu size={24} />
           </button>
           <div className="flex items-center gap-2 font-bold text-[var(--primary-color)]">
-            <Zap size={20} />
+            <DooraLogo size={20} />
             <span>Doora</span>
           </div>
           <div className="w-8" /> {/* Spacer for centering */}

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
-import { Eye, EyeOff, Zap, ArrowLeft, CheckCircle } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react";
+import DooraLogo from "../components/DooraLogo";
 import { useToast } from "../context/ToastContext";
 import usePageTitle from "../hooks/usePageTitle";
 
@@ -73,7 +74,7 @@ const ResetPassword = () => {
         {/* Logo */}
         <div className="absolute top-8 left-8">
           <Link to="/" className="flex items-center gap-2 font-bold text-[var(--primary-color)] hover:opacity-80 transition-opacity">
-            <Zap size={24} />
+            <DooraLogo size={24} />
           </Link>
         </div>
 

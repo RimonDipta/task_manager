@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../api/authApi";
 import { useToast } from "../context/ToastContext";
-import { Eye, EyeOff, Zap } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
+import DooraLogo from "../components/DooraLogo";
 
 import PasswordStrength from "../components/PasswordStrength";
 import { getPasswordStrength } from "../utils/passwordStrength";
@@ -65,7 +66,7 @@ const Register = () => {
         {/* Logo */}
         <div className="absolute top-8 left-8">
           <Link to="/" className="flex items-center gap-2 font-bold text-[var(--primary-color)] hover:opacity-80 transition-opacity">
-            <Zap size={24} />
+            <DooraLogo size={24} />
           </Link>
         </div>
         <div className="text-center mb-8">
