@@ -179,7 +179,7 @@ export const updateTask = async (req, res) => {
   }
 
   const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
+    returnDocument: "after",
   });
 
   res.json(updatedTask);

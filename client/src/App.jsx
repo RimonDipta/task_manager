@@ -19,7 +19,6 @@ const DashboardRedirect = () => <Navigate to={getDefaultView()} replace />;
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 const VerifyOtp = lazy(() => import("./pages/VerifyOtp"));
 const Tasks = lazy(() => import("./pages/Tasks"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));

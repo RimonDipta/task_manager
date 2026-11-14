@@ -149,6 +149,15 @@ This creates (or resets) a pre-verified demo account:
 
 Safe to re-run — it only ever touches this one demo account's data, never anyone else's. Requires `MONGO_URI` to be set in `server/.env`.
 
+### 🧪 Testing
+
+Both the client and server have automated test suites (and a CI workflow runs them on every push/PR — see `.github/workflows/ci.yml`):
+
+```bash
+cd server && npm test   # auth, task and project API tests against an in-memory MongoDB — no real database needed
+cd client && npm test   # unit tests for pure utilities (password strength, preferences)
+```
+
 ## 📦 Building for Production
 
 To build the frontend for deployment:
