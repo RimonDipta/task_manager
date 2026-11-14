@@ -4,6 +4,9 @@ import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import usePageTitle from "../hooks/usePageTitle";
+import AuthLayout from "../components/AuthLayout";
+import AuthInput from "../components/AuthInput";
+import AuthButton from "../components/AuthButton";
 
 
 const VerifyOtp = () => {
@@ -49,74 +52,62 @@ const VerifyOtp = () => {
 
     const resendHandler = async () => {
         try {
-            const res = await api.post("/auth/resend-otp", { email });
-            if (res.data.otp) {
-                console.log("🔒 Resent OTP:", res.data.otp);
-            }
-            showToast("OTP resent successfully. Check your console/email.", "info");
+            await api.post("/auth/resend-otp", { email });
+            showToast("OTP resent successfully. Check your email.", "info");
         } catch (err) {
             showToast(err.response?.data?.message || "Failed to resend OTP");
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)] px-4 transition-colors duration-300">
-            <div className="w-full max-w-sm bg-[var(--bg-card)] p-8 rounded-2xl shadow-xl border border-[var(--border-color)]">
-                <div className="text-center mb-8">
-                    <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Verify your account</h2>
-                    <p className="text-[var(--text-secondary)] mt-2 text-sm">
-                        Please verify yourself to use the app.
-                    </p>
-                    <p className="text-xs text-[var(--text-secondary)] opacity-70 mt-1">
-                        Check <span className="font-medium text-[var(--text-primary)]">{email}</span> (and your spam folder) to see the OTP.
-                    </p>
-                </div>
-
-                <form onSubmit={submitHandler} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5 text-center">Enter 6-digit OTP</label>
-                        <input
-                            type="text"
-                            className="w-full px-4 py-3 bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-[var(--primary-color)] text-[var(--text-primary)] transition-all text-center text-2xl tracking-widest font-mono"
-                            placeholder="000000"
-                            maxLength="6"
-                            value={otp}
-                            onChange={(e) => setOtp(e.target.value)}
-                            // Removed strict replace to debug "cant enter" issue, or maybe user was typing letters?
-                            // Let's rely on backend validation or add a cleaner onBlur if needed.
-                            // But for now, just set value directly to avoid "controlled input locking" issues if regex fails.
-                            required
-                            autoFocus
-                        />
+        <AuthLayout
+            title="Verify your account"
+            subtitle={
+                <>
+                    Enter the code sent to{" "}
+                    <span className="font-medium text-[var(--text-primary)]">{email}</span>
+                    {" "}(check your spam folder too)
+                </>
+            }
+            footer={
+                <div className="space-y-4">
+                    <div className="text-center">
+                        <button
+                            onClick={resendHandler}
+                            className="text-sm text-[var(--primary-color)] hover:opacity-80 font-medium"
+                        >
+                            Resend OTP
+                        </button>
                     </div>
-
-                    <button
-                        disabled={loading}
-                        className="w-full py-2.5 bg-[var(--primary-color)] hover:opacity-90 text-white font-medium rounded-lg shadow-lg shadow-indigo-500/30 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {loading ? "Verifying..." : "Verify & Login"}
-                    </button>
-                </form>
-
-                <div className="mt-6 text-center">
-                    <button
-                        onClick={resendHandler}
-                        className="text-sm text-[var(--primary-color)] hover:opacity-80 font-medium"
-                    >
-                        Resend OTP
-                    </button>
+                    <div className="text-center border-t border-[var(--border-color)] pt-4">
+                        <button
+                            onClick={() => navigate("/login")}
+                            className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                        >
+                            Back to login
+                        </button>
+                    </div>
                 </div>
+            }
+        >
+            <form onSubmit={submitHandler} className="space-y-6">
+                <AuthInput
+                    label="6-digit code"
+                    type="text"
+                    maxLength={6}
+                    placeholder="000000"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    required
+                    autoFocus
+                    className="text-center text-2xl tracking-widest font-mono !pl-4"
+                />
 
-                <div className="mt-4 text-center border-t border-[var(--border-color)] pt-4">
-                    <button
-                        onClick={() => navigate("/login")}
-                        className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                    >
-                        Back to Login
-                    </button>
-                </div>
-            </div>
-        </div>
+                <AuthButton type="submit" loading={loading} loadingText="Verifying...">
+                    Verify &amp; continue
+                </AuthButton>
+            </form>
+        </AuthLayout>
     );
 };
 
